@@ -1,0 +1,90 @@
+name: Forms Flow API CI
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "forms-flow-api/**"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./forms-flow-api
+
+jobs:
+  setup-job:
+    runs-on: ubuntu-20.04
+
+    if: github.repository == 'sumesh-aot/forms-flow-ai'
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: "true"
+
+  linting:
+    needs: setup-job
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/dev.txt
+      - name: Lint with pylint
+        id: pylint
+        run: |
+          . venv/bin/activate && pylint --rcfile=setup.cfg  src/formsflow_api
+      - name: Lint with flake8
+        id: flake8
+        run: |
+          . venv/bin/activate && flake8 src/formsflow_api tests
+
+  testing:
+    needs: setup-job
+    env:
+      FLASK_ENV: "testing"
+      
+
+    runs-on: ubuntu-20.04
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/dev.txt
+      - name: Test with pytest
+        id: test
+        run: |
+          pytest
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./pay-api/coverage.xml
+          flags: payapi
+          name: codecov-pay-api
+          fail_ci_if_error: true

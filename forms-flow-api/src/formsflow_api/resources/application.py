@@ -40,7 +40,7 @@ class ApplicationsResource(Resource):
         :params limit: to retrieve limit for each page
         :params orderBy: Name of column to order by (default: created)
         """
-        try: 
+        try:
             dict_data = ApplicationListRequestSchema().load(request.args) or {}
             page_no = dict_data.get("page_no")
             limit = dict_data.get("limit")
@@ -93,8 +93,8 @@ class ApplicationsResource(Resource):
                     application_status=application_status,
                 )
             application_schema = ApplicationService.apply_custom_attributes(
-                    application_schema=application_schema_dump
-                )
+                application_schema=application_schema_dump
+            )
             return (
                 (
                     {
