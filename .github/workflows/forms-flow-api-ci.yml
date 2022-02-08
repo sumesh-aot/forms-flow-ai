@@ -42,11 +42,11 @@ jobs:
       - name: Lint with pylint
         id: pylint
         run: |
-          . venv/bin/activate && pylint --rcfile=setup.cfg  src/formsflow_api
+          pylint --rcfile=setup.cfg  src/formsflow_api
       - name: Lint with flake8
         id: flake8
         run: |
-          . venv/bin/activate && flake8 src/formsflow_api tests
+          flake8 src/formsflow_api tests
 
   testing:
     needs: setup-job
