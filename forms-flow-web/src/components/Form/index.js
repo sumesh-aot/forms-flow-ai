@@ -1,7 +1,6 @@
 import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
-import { connect } from "react-redux";
-import { selectRoot } from "react-formio";
+import {useSelector} from "react-redux";
 
 import List from "./List";
 // import Create from "./Create";
@@ -9,7 +8,6 @@ import Stepper from "./Stepper";
 import Item from "./Item/index";
 import { STAFF_DESIGNER, STAFF_REVIEWER, CLIENT } from "../../constants/constants";
 import Loading from "../../containers/Loading";
-import { setUserAuth, setCurrentPage } from "../../actions/bpmActions";
 
 let user = "";
 
@@ -35,13 +33,14 @@ const FormSubmissionRoute = ({ component: Component, ...rest }) => (
 );
 
 
-const Form = (props) => {
-  user = props.user;
-  if (!props.isAuthenticated) {
+export default React.memo(() => {
+  user = useSelector(state=>state.user.roles || []);
+  const isAuthenticated = useSelector(state=>state.user.isAuthenticated);
+  if (!isAuthenticated) {
     return <Loading />;
   }
   return (
-    <div className="container" id="main">
+    <div className="container" id="main" data-testid="Form-index">
       <Switch>
         <Route exact path="/form" component={List} />
         <CreateFormRoute
@@ -53,22 +52,4 @@ const Form = (props) => {
       </Switch>
     </div>
   );
-};
-
-const mapStatetoProps = (state) => {
-  return {
-    user: selectRoot("user", state).roles || [],
-    isAuthenticated: state.user.isAuthenticated,
-  };
-};
-
-const mapStateToDispatch = (dispatch) => {
-  return {
-    setCurrentPage: dispatch(setCurrentPage("form")),
-    setUserAuth: (value) => {
-      dispatch(setUserAuth(value));
-    },
-  };
-};
-
-export default connect(mapStatetoProps, mapStateToDispatch)(Form);
+});

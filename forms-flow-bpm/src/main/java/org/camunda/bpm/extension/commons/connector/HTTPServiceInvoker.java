@@ -1,8 +1,9 @@
 package org.camunda.bpm.extension.commons.connector;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -27,14 +28,10 @@ public class HTTPServiceInvoker {
     @Autowired
     private Properties integrationCredentialProperties;
 
-    public ResponseEntity<String> execute(String url, HttpMethod method, Object payload) {
-        try {
-            String dataJson = payload != null ? new ObjectMapper().writeValueAsString(payload) : null;
-            return execute(url, method, dataJson);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public ResponseEntity<String> execute(String url, HttpMethod method, Object payload) throws IOException {
+        String dataJson = payload != null ? new ObjectMapper().writeValueAsString(payload) : null;
+        return execute(url, method, dataJson);
+
     }
 
     public ResponseEntity<String> execute(String url, HttpMethod method, String payload) {
@@ -42,7 +39,7 @@ public class HTTPServiceInvoker {
     }
 
     private String getServiceId(String url) {
-        if(StringUtils.contains(url,"/api/")) {
+        if(StringUtils.contains(url, getProperties().getProperty("api.url"))) {
             return "applicationAccessHandler";
         }
         return "formAccessHandler";

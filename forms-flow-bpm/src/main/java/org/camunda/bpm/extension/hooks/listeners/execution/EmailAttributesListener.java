@@ -21,21 +21,24 @@ public class EmailAttributesListener implements ExecutionListener, IUser {
     private final Logger LOGGER = Logger.getLogger(EmailAttributesListener.class.getName());
 
     @Override
-    public void notify(DelegateExecution execution) throws Exception {
+    public void notify(DelegateExecution execution) {
        LOGGER.info("EmailAttributesListener input : "+execution.getVariables());
        Map<String,Object> dmnMap = getDMNTemplate(execution);
        String emailto = getAddressValue(execution,dmnMap,"to");
        String groupName = String.valueOf(execution.getVariable("groupName"));
        List<String> emailgroup = getEmailsForGroup(execution,groupName);
        if(CollectionUtils.isNotEmpty(emailgroup)) {
-           emailto = emailto.concat(",").concat(String.join(",",emailgroup));
+           if(emailto.length() > 0) {
+               emailto = emailto.concat(",").concat(String.join(",", emailgroup));
+           } else {
+               emailto = String.join(",", emailgroup);
+           }
        }
         tranformEmailContent(execution,dmnMap);
         execution.setVariable("email_cc", getAddressValue(execution,dmnMap,"cc"));
         if(StringUtils.isNotBlank(emailto)) {
             execution.setVariable("email_to", emailto);
         }
-
     }
 
     /**

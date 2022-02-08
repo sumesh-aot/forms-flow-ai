@@ -1,66 +1,86 @@
 package org.camunda.bpm.extension.hooks.listeners;
 
-import lombok.Data;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.extension.commons.connector.HTTPServiceInvoker;
+import org.camunda.bpm.extension.hooks.exceptions.ApplicationServiceException;
+import org.camunda.bpm.extension.hooks.listeners.data.Application;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-import java.util.Properties;
-import java.util.logging.Logger;
+import java.io.IOException;
 
 /**
  * This class updates the application state and also capture audit.
  *
  * @author sumathi.thirumani@aot-technologies.com
+ * @author Shibin Thomas
  */
 @Component
-public class ApplicationStateListener extends ApplicationAuditListener implements ExecutionListener, TaskListener {
+public class ApplicationStateListener extends BaseListener implements ExecutionListener, TaskListener {
+
 
     @Autowired
-    private Application application;
+    private HTTPServiceInvoker httpServiceInvoker;
+
+    @Autowired
+    private ApplicationAuditListener applicationAuditListener;
 
     @Override
     public void notify(DelegateExecution execution) {
-        invokeApplicationService(execution);
-        invokeApplicationAuditService(execution);
+        try {
+            invokeApplicationService(execution);
+            applicationAuditListener.invokeApplicationAuditService(execution);
+        } catch (IOException e) {
+            handleException(execution, ExceptionSource.EXECUTION, e);
+        }
     }
 
     @Override
     public void notify(DelegateTask delegateTask) {
-        invokeApplicationService(delegateTask.getExecution());
-        invokeApplicationAuditService(delegateTask.getExecution());
-
+        try {
+            invokeApplicationService(delegateTask.getExecution());
+            applicationAuditListener.invokeApplicationAuditService(delegateTask.getExecution());
+        } catch (IOException e) {
+            handleException(delegateTask.getExecution(), ExceptionSource.TASK, e);
+        }
     }
 
-    private void invokeApplicationService(DelegateExecution execution) {
-        Application application = prepareApplication(execution);
-        getHTTPServiceInvoker().execute(getUrl(execution), HttpMethod.PUT, application);
+    /**
+     * This method invokes the HTTP service invoker for application.
+     *
+     * @param execution
+     */
+    private void invokeApplicationService(DelegateExecution execution) throws IOException {
+        ResponseEntity<String> response = httpServiceInvoker.execute(getApplicationUrl(execution), HttpMethod.PUT,  prepareApplication(execution));
+        if(response.getStatusCodeValue() != HttpStatus.OK.value()) {
+            throw new ApplicationServiceException("Unable to update application "+ ". Message Body: " +
+                    response.getBody());
+        }
     }
 
+    /**
+     * Prepares and returns the Application object.
+     * @param execution
+     * @return
+     */
     private Application prepareApplication(DelegateExecution execution) {
-        application.setApplicationStatus(String.valueOf(execution.getVariable("applicationStatus")));
-        application.setFormUrl(String.valueOf(execution.getVariable("formUrl")));
-        return application;
+        String applicationStatus = String.valueOf(execution.getVariable("applicationStatus"));
+        String formUrl = String.valueOf(execution.getVariable("formUrl"));
+        return new Application(applicationStatus, formUrl);
     }
 
-    private String getUrl(DelegateExecution execution){
-        return getHTTPServiceInvoker().getProperties().getProperty("api.url")+"/application/"+execution.getVariable("applicationId");
+    /**
+     * Returns the endpoint of application API.
+     * @param execution
+     * @return
+     */
+    private String getApplicationUrl(DelegateExecution execution){
+        return httpServiceInvoker.getProperties().getProperty("api.url")+"/application/"+execution.getVariable("applicationId");
     }
-
-
-
-}
-@Component
-@Scope("prototype")
-@Data
-class Application{
-    private String applicationStatus;
-    private String formUrl;
 }

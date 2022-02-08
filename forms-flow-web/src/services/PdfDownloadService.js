@@ -1,3 +1,4 @@
+ /* istanbul ignore file */
 import FormioExport from 'aot-formio-export';
 import moment from "moment";
 
@@ -47,6 +48,10 @@ const getPdf = (formResponse, submissionData, callback) => {
       exporter.toPdf(options.config).then(callback);
     }
 }
-export default {
+
+const PdfDownloadService ={
   getPdf
-}
+};
+
+export default PdfDownloadService;
+

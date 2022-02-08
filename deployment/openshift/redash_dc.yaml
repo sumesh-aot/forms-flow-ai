@@ -9,12 +9,16 @@ objects:
     POSTGRES_HOST_AUTH_METHOD: trust
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     PYTHONUNBUFFERED: "0"
-    REDASH_COOKIE_SECRET: redash-selfhosted
     REDASH_DATABASE_URL: '${REDASH_DATABASE_URL}'
     REDASH_HOST: '${REDASH_HOST}'
     REDASH_LOG_LEVEL: INFO
     REDASH_REDIS_URL: ${REDASH_REDIS_URL}
-    REDASH_SECRET_KEY: redash-selfhosted
+    REDASH_SECRET_KEY: '${REDASH_SECRET_KEY}'
+    REDASH_COOKIE_SECRET: '${REDASH_COOKIE_SECRET}'
+    REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN: '${REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN}'
+    REDASH_REFERRER_POLICY: '${REDASH_REFERRER_POLICY}'
+    REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS: '${REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS}'
+
   metadata:
     creationTimestamp: null
     labels:
@@ -111,6 +115,21 @@ objects:
               secretKeyRef:
                 key: REDASH_SECRET_KEY
                 name: ${NAME}
+          - name: REDASH_REFERRER_POLICY
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_REFERRER_POLICY
+                name:  ${NAME}      
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+                name: ${NAME}
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+                name: ${NAME}        
           - name: REDASH_WEB_WORKERS
             value: "4"
           image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
@@ -204,6 +223,21 @@ objects:
               secretKeyRef:
                 key: REDASH_SECRET_KEY
                 name: ${NAME}
+          - name: REDASH_REFERRER_POLICY
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_REFERRER_POLICY
+                name:  ${NAME}      
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+                name: ${NAME}
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+                name: ${NAME}               
           - name: WORKERS_COUNT
             value: "2"
           image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
@@ -295,6 +329,21 @@ objects:
               secretKeyRef:
                 key: REDASH_SECRET_KEY
                 name: ${NAME}
+          - name: REDASH_REFERRER_POLICY
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_REFERRER_POLICY
+                name:  ${NAME}      
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+                name: ${NAME}
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+                name: ${NAME}               
           - name: WORKERS_COUNT
           value: "1"
           image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
@@ -384,6 +433,21 @@ objects:
               secretKeyRef:
                 key: REDASH_SECRET_KEY
                 name: ${NAME}
+          - name: REDASH_REFERRER_POLICY
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_REFERRER_POLICY
+                name:  ${NAME}      
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+                name: ${NAME}
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+                name: ${NAME}                     
           image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
           name: ${NAME}-scheduler
           resources: {}
@@ -473,9 +537,24 @@ objects:
               secretKeyRef:
                 key: REDASH_SECRET_KEY
                 name: ${NAME}
+          - name: REDASH_REFERRER_POLICY
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_REFERRER_POLICY
+                name:  ${NAME}      
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS
+                name: ${NAME}
+          - name: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                key: REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
+                name: ${NAME}                     
           - name: WORKERS_COUNT
             value: "1"
-          image: ' '
+          image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
           name: ${NAME}-worker
           resources: {}
         restartPolicy: Always
@@ -543,7 +622,7 @@ parameters:
     required: true
     description: The namespace of the OpenShift project containing the imagestream for
       the application.
-    value: nzpnbz-tools
+    #value: 7d3aa1-dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod

@@ -1,3 +1,11 @@
+if (window.location.href.startsWith("https://test-")) {
+  document.querySelector("[cam-widget-header]").style.backgroundColor = "orange";
+} else if (window.location.href.startsWith("https://dev-")) {
+  document.querySelector("[cam-widget-header]").style.backgroundColor = "green";
+} else if (window.location.href.startsWith("http://localhost")) {
+  document.querySelector("[cam-widget-header]").style.backgroundColor = "grey";
+}
+
 window.camAdminConf = {
   customScripts: {
     // AngularJS module names
@@ -14,4 +22,10 @@ window.camAdminConf = {
     name: 'Process Engine',
     vendor: ' '
   }
+};
+
+export default {
+    customScripts: [
+        'custom/logout'
+    ]
 };

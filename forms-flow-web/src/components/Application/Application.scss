@@ -10,6 +10,14 @@
     font-weight: bold;
     font-size:30px;
     margin-left: 10px !important;
+    display: inline-block;
+}
+.solid-list-icon {
+  height: 25px;
+  margin-top: 7px;
+}
+.application-text{
+  margin-left: 10px;
 }
 .application-count
 {
@@ -37,3 +45,12 @@
     margin-top: 15%;
     margin-bottom: 20%;
 }
+.icon-search {
+    font-family: Nunito Sans,SemiBold, FontAwesome;
+    font-size: 14px;
+    color: #E2E2E2;
+  }
+.react-bootstrap-table {
+    min-height: 500px;
+    overflow: auto;
+  }

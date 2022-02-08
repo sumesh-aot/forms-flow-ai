@@ -1,62 +1,84 @@
 package org.camunda.bpm.extension.hooks.listeners;
 
-import lombok.Data;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.extension.commons.connector.HTTPServiceInvoker;
-import org.joda.time.DateTime;
+import org.camunda.bpm.extension.hooks.exceptions.ApplicationServiceException;
+import org.camunda.bpm.extension.hooks.listeners.data.Application;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-import java.util.Properties;
-import java.util.logging.Logger;
+import java.io.IOException;
+
 
 /**
- * This class creates an entry of audit
+ * This class creates / updates an audit entry in formsflow.ai system.
  *
  * @author sumathi.thirumani@aot-technolgies.com
+ * @author Shibin Thomas
  */
 @Component
-public class ApplicationAuditListener {
-
-    private final Logger LOGGER = Logger.getLogger(ApplicationAuditListener.class.getName());
+public class ApplicationAuditListener extends BaseListener implements ExecutionListener, TaskListener {
 
     @Autowired
     private HTTPServiceInvoker httpServiceInvoker;
 
-    @Autowired
-    private ApplicationAudit applicationAudit;
-
-    protected void invokeApplicationAuditService(DelegateExecution execution) {
-        ApplicationAudit audit = prepareApplicationAudit(execution);
-        getHTTPServiceInvoker().execute(getUrl(execution), HttpMethod.POST, audit);
+    @Override
+    public void notify(DelegateExecution execution) {
+        try {
+            invokeApplicationAuditService(execution);
+        } catch (IOException e) {
+            handleException(execution, ExceptionSource.EXECUTION, e);
+        }
     }
 
-    private ApplicationAudit prepareApplicationAudit(DelegateExecution execution) {
-            applicationAudit.setApplicationStatus(String.valueOf(execution.getVariable("applicationStatus")));
-            applicationAudit.setFormUrl(String.valueOf(execution.getVariable("formUrl")));
-            return applicationAudit;
+    @Override
+    public void notify(DelegateTask delegateTask) {
+        try {
+            invokeApplicationAuditService(delegateTask.getExecution());
+        } catch (IOException e) {
+            handleException(delegateTask.getExecution(), ExceptionSource.TASK, e);
+        }
     }
 
-    public HTTPServiceInvoker getHTTPServiceInvoker() {
-        return httpServiceInvoker;
+    /**
+     * This method invokes the HTTP service invoker for audit.
+     *
+     * @param execution
+     */
+    protected void invokeApplicationAuditService(DelegateExecution execution) throws IOException {
+        ResponseEntity<String> response = httpServiceInvoker.execute(getApplicationAuditUrl(execution), HttpMethod.POST, prepareApplicationAudit(execution));
+        if(response.getStatusCodeValue() != HttpStatus.CREATED.value()) {
+            throw new ApplicationServiceException("Unable to capture audit for application "+ ". Message Body: " +
+                    response.getBody());
+        }
     }
 
-    private String getUrl(DelegateExecution execution){
-        return getHTTPServiceInvoker().getProperties().getProperty("api.url")+"/application/"+execution.getVariable("applicationId")+"/history";
+    /**
+     * Prepares and returns the ApplicationAudit object.
+     *
+     * @param execution
+     * @return
+     */
+    private Application prepareApplicationAudit(DelegateExecution execution) {
+        String applicationStatus = String.valueOf(execution.getVariable("applicationStatus"));
+        String formUrl = String.valueOf(execution.getVariable("formUrl"));
+        return new Application(applicationStatus, formUrl);
     }
 
 
-}
-@Component
-@Scope("prototype")
-@Data
-class ApplicationAudit{
-    private String applicationStatus;
-    private String formUrl;
+    /**
+     * Returns the endpoint of application audit API.
+     * @param execution
+     * @return
+     */
+    private String getApplicationAuditUrl(DelegateExecution execution){
+        return httpServiceInvoker.getProperties().getProperty("api.url")+"/application/"+execution.getVariable("applicationId")+"/history";
+    }
+
 }

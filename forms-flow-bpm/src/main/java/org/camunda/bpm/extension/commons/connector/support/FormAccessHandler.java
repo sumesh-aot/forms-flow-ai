@@ -1,20 +1,24 @@
 package org.camunda.bpm.extension.commons.connector.support;
 
-
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.camunda.bpm.engine.ProcessEngines;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.extension.hooks.exceptions.FormioServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class serves as gateway for all formio interactions.
@@ -22,64 +26,102 @@ import java.util.logging.Logger;
  * @author sumathi.thirumani@aot-technologies.com
  */
 @Service("formAccessHandler")
-public class FormAccessHandler implements IAccessHandler {
+public class FormAccessHandler extends FormTokenAccessHandler implements IAccessHandler {
 
-    private final Logger LOGGER = Logger.getLogger(FormAccessHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(FormAccessHandler.class.getName());
+
+    static final String TOKEN_NAME = "formio_access_token";
+    static final String TOKEN_PROCESS_NAME = "formio-access-token";
+    static final int TOKEN_EXPIRY_CODE = 404;
 
     @Autowired
-    private Properties integrationCredentialProperties;
+    private NamedParameterJdbcTemplate bpmJdbcTemplate;
+
+    @Autowired
+    private WebClient unauthenticatedWebClient;
 
 
     public ResponseEntity<String> exchange(String url, HttpMethod method, String payload) {
-        String accessToken = getAccessToken();
+        String accessToken = getToken();
         if(StringUtils.isBlank(accessToken)) {
-            LOGGER.info("Access token is blank. Cannot invoke service:"+url);
+            logger.info("Access token is blank. Cannot invoke service:{}", url);
             return null;
         }
-        //HTTP Headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("x-jwt-token", getAccessToken());
-        HttpEntity<String> reqObj =
-                new HttpEntity<String>(payload, headers);
+        ResponseEntity<String> response = exchange(url,method,payload,accessToken);
+        if(response.getStatusCodeValue() == TOKEN_EXPIRY_CODE) {
+            exchange(url,method,payload,getAccessToken());
+        }
+        logger.info("Response code for service invocation: {}" , response.getStatusCode());
+        return response;
+    }
+
+    public ResponseEntity<String> exchange(String url, HttpMethod method, String payload, String accessToken) {
+
+        payload = (payload == null) ? new JsonObject().toString() : payload;
+
         if(HttpMethod.PATCH.name().equals(method.name())) {
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            RestTemplate restTemplate = new RestTemplate(requestFactory);
-            String  response= restTemplate.patchForObject(getDecoratedServerUrl(url), reqObj, String.class);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            logger.info("payload="+payload);
+            Mono<ResponseEntity<String>> entityMono = unauthenticatedWebClient.patch()
+                    .uri(getDecoratedServerUrl(url))
+                    .bodyValue(payload)
+                    .header("x-jwt-token", accessToken)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError,
+                            response -> Mono.error(new FormioServiceException(response.toString())))
+                    .toEntity(String.class);
+
+            ResponseEntity<String> response = entityMono.block();
+            if(response !=null && "Token Expired".equalsIgnoreCase(response.getBody())) {
+                return new ResponseEntity<>(response.getBody(), HttpStatus.valueOf(TOKEN_EXPIRY_CODE));
+            }
+            return response;
+        } else {
+            return unauthenticatedWebClient.method(method)
+                    .uri(getDecoratedServerUrl(url))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .header("x-jwt-token", accessToken)
+                    .body(Mono.just(payload), String.class)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError,
+                            response -> Mono.error(new FormioServiceException(response.toString())))
+                    .toEntity(String.class)
+                    .block();
         }
-        ResponseEntity<String> wrsp = getRestTemplate().exchange(getDecoratedServerUrl(url), method, reqObj, String.class);
-        LOGGER.info("Response code for service invocation: " + wrsp.getStatusCode());
-
-        return wrsp;
-    }
-
-    private RestTemplate getRestTemplate() {
-        return new RestTemplate();
-    }
-
-    private String getAccessToken(){
-        Map<String,String> paramMap = new HashMap<>();
-        paramMap.put("email",integrationCredentialProperties.getProperty("formio.security.username"));
-        paramMap.put("password",integrationCredentialProperties.getProperty("formio.security.password"));
-        HashMap<String, Map> dataMap = new HashMap<>();
-        dataMap.put("data", paramMap);
-        try {
-            //HTTP Headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> reqObj =
-                    new HttpEntity<String>(new ObjectMapper().writeValueAsString(dataMap), headers);
-            ResponseEntity<String> response = getRestTemplate().exchange(integrationCredentialProperties.getProperty("formio.security.accessTokenUri"), HttpMethod.POST, reqObj, String.class);
-            return response.getHeaders().get("x-jwt-token").get(0);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"Exception occured in getting x-jwt-token", e);
-        }
-            return null;
     }
 
     private String getDecoratedServerUrl(String url) {
-        return integrationCredentialProperties.getProperty("formio.url")+"/form/"+StringUtils.substringAfter(url,"/form/");
+        if(StringUtils.contains(url,"/form/")) {
+            return getIntegrationCredentialProperties().getProperty("formio.url") + "/form/" + StringUtils.substringAfter(url, "/form/");
+        }
+        return getIntegrationCredentialProperties().getProperty("formio.url") +"/"+ StringUtils.substringAfterLast(url, "/");
     }
 
+    private String getToken() {
+        ProcessDefinition processDefinition = ProcessEngines.getDefaultProcessEngine().getRepositoryService().createProcessDefinitionQuery()
+                .latestVersion()
+                .processDefinitionKey(TOKEN_PROCESS_NAME)
+                .singleResult();
+        String accessToken = processDefinition != null ? getTokenFromDBStore(processDefinition.getId()) : null;
+        if(StringUtils.isBlank(accessToken)) {
+            logger.info("Unable to extract token from variable context. Generating new JWT token.");
+            return accessToken != null ? accessToken : getAccessToken();
+        }
+        return accessToken;
+    }
+
+    private String getTokenFromDBStore(String processDefinitionId) {
+        String query = "select arv.text_ from act_ru_variable arv, act_ru_job rjb " +
+                "where arv.proc_def_id_ = rjb.process_def_id_ and arv.proc_inst_id_  " +
+                "= rjb.process_instance_id_ and rjb.process_def_key_=:tokenProcessName " +
+                "and rjb.type_='timer' and arv.name_ = :tokenName " +
+                "and rjb.process_def_id_ =:processDefinitionId order by rjb.create_time_ desc LIMIT 1";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("tokenProcessName", TOKEN_PROCESS_NAME);
+        parameters.addValue("tokenName", TOKEN_NAME);
+        parameters.addValue("processDefinitionId", processDefinitionId);
+        return bpmJdbcTemplate.queryForObject(query,parameters, String.class);
+    }
 }

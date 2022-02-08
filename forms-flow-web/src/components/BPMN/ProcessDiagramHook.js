@@ -5,14 +5,16 @@ import {useDispatch,useSelector} from "react-redux";
 import BpmnJS from 'bpmn-js/dist/bpmn-navigated-viewer.production.min.js';
 import Loading from "../../containers/Loading";
 
-import {fetchDiagram} from "../../apiManager/services/processServices";
-import {setProcessDiagramLoading} from "../../actions/processActions";
+import {fetchDiagram, getProcessActivities} from "../../apiManager/services/processServices";
+import {setProcessActivityData, setProcessDiagramLoading, setProcessDiagramXML} from "../../actions/processActions";
 import "./bpm.scss"
 //import BpmnJS from 'bpmn-js';
 import usePrevious from "./UsePrevious";
+import Nodata from "../Nodata";
 
-const ProcessDiagram = (props)=>{
+const ProcessDiagram = React.memo((props)=>{
   const process_key = props.process_key;
+  const processInstanceId = props.processInstanceId;
   const dispatch= useDispatch();
   const isProcessDiagramLoading = useSelector(state=>state.process.isProcessDiagramLoading);
   const diagramXML = useSelector(state => state.process.processDiagramXML);
@@ -33,7 +35,7 @@ const ProcessDiagram = (props)=>{
           error
         } = event;
         if (error) {
-          console.log('inside bpmnViewer on error >', error);
+          console.log('bpmnViewer error >', error);
           //return handleError(error);
         }
         //bpmnViewer.get('canvas').zoom('fit-viewport');
@@ -51,7 +53,21 @@ const ProcessDiagram = (props)=>{
     if(process_key){
       dispatch(fetchDiagram(process_key));
     }
+    return ()=>{
+      dispatch(setProcessDiagramLoading(true));
+      dispatch(setProcessDiagramXML(""));
+    }
   },[process_key,dispatch])
+
+  useEffect(()=>{
+    if(processInstanceId){
+      dispatch(getProcessActivities(processInstanceId));
+    }
+    return ()=>{
+      dispatch(setProcessActivityData(null));
+    }
+  },[processInstanceId,dispatch])
+
 
  useEffect(()=>{
    if(diagramXML && bpmnViewer) {
@@ -65,7 +81,6 @@ const ProcessDiagram = (props)=>{
         marker = marker.replace(/'/g, '"');
         const markerJson = JSON.parse(marker);
       if ((!prevMarkers || (prevMarkers[0] && markers[0].id === prevMarkers[0].id))&& marker!=null){
-        console.log('inside highlight if');
         for (let i=0; i < markerJson.length; i++) {
           setTimeout(() => {
             bpmnViewer && bpmnViewer.get('canvas') &&
@@ -74,7 +89,6 @@ const ProcessDiagram = (props)=>{
         }
       }
    }
-   //console.log('containerRef current 2>>>>>>',container);
  },[diagramXML,bpmnViewer,markers,prevMarkers]);
 
 
@@ -101,13 +115,20 @@ const ProcessDiagram = (props)=>{
       </div>
     </div>
   }
+  if(diagramXML===""){
+    return <div className="bpmn-viewer-container">
+      <div className="bpm-container">
+        <Nodata text={"No Process Diagram found"} className={"div-no-application-list text-center"}/>
+      </div>
+    </div>
+  }
 
   return (
     <div className="bpmn-viewer-container">
       <div id="process-diagram-container" className="bpm-container grab-cursor" ref={containerRef}/>
     </div>
   );
-};
+});
 
 export default ProcessDiagram;
 

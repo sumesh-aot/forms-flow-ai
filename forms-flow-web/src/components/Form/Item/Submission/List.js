@@ -20,16 +20,16 @@ import {setApplicationListLoader} from "../../../../actions/applicationActions";
 
 
 const getOperations = (userRoles) => {
-  let operations = []
-  if (userRoles.includes(CLIENT)) {
+  let operations = [];
+  if (userRoles.includes(STAFF_REVIEWER)) {
+    operations.push(OPERATIONS.view/*, OPERATIONS.deleteSubmission*/)
+  }else if (userRoles.includes(CLIENT)) {
     operations.push(OPERATIONS.view)
-  } else if (userRoles.includes(STAFF_REVIEWER)) {
-    operations.push(OPERATIONS.view, OPERATIONS.deleteSubmission)
   }
   return operations;
 }
 
-const List = (props) => {
+const List = React.memo((props) => {
   const dispatch = useDispatch();
   const {formId} = useParams();
   const {submissions, isLoading, onAction, getSubmissions, errors, userRoles, submissionFormId, submissionId, onNo, onYes} = props;
@@ -77,18 +77,18 @@ const List = (props) => {
       >
       </Confirm>
       <div className="main-header">
-        <Link to="/form">
-          <img src="/back.svg" alt="back"/>
+        <Link className="back-icon" to="/form">
+        <i className="fa fa-chevron-left fa-lg" />
         </Link>
 {/*        <span className="ml-3">
                         <img src="/form.svg" width="30" height="30" alt="form" />
                     </span>*/}
         <h3 className="ml-3">
-          <span className="task-head-details"> <i className="fa fa-wpforms" aria-hidden="true"/>&nbsp; Forms /</span> {form.title}
+          <span className="task-head-details"> <i className="fa fa-wpforms" aria-hidden="true"/><span className="forms-text">Forms /</span></span> {form.title}
         </h3>
-        {userRoles.includes(CLIENT) ? <Link className="btn btn-primary form-btn btn-right" to={`/form/${formId}`}>
-          <i className='fa fa-plus' aria-hidden='true'/> New Submisssion
-        </Link> : null}
+        {/* {userRoles.includes(CLIENT) ? <Link className="btn btn-primary form-btn btn-right" to={`/form/${formId}`}>
+        <img src="/webfonts/fa_plus.svg" alt="back"/> New Submisssion
+        </Link> : null} */}
       </div>
 
       <section className="custom-grid">
@@ -103,7 +103,7 @@ const List = (props) => {
       </section>
     </div>
   );
-}
+})
 
 const mapStateToProps = (state) => {
   const form = selectRoot('form', state);
@@ -127,7 +127,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onAction: (submission, action) => {
       switch (action) {
         case 'viewSubmission':
-        case 'row':
           dispatch(push(`/form/${ownProps.match.params.formId}/submission/${submission._id}`));
           break;
         case 'edit':

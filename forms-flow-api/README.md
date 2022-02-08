@@ -1,85 +1,113 @@
-# formsflow.ai API 
+# formsflow.ai API
 
-![Python](https://img.shields.io/badge/python-3.8-blue) ![Flask](https://img.shields.io/badge/Flask-1.1.1-blue) ![postgres](https://img.shields.io/badge/postgres-latest-blue)
+![Python](https://img.shields.io/badge/python-3.9-blue) ![Flask](https://img.shields.io/badge/Flask-1.1.4-blue) ![postgres](https://img.shields.io/badge/postgres-11.0-blue)
 
 **formsflow.ai** has built this adaptive tier for correlating form management, BPM and analytics together.
 
-The goal of the REST API is to provide access to all relevant interfaces of 
-the system. It's build using Python :snake: .
+The goal of the REST API is to provide access to all relevant interfaces of
+the system. It is built using Python :snake: .
 
 ## Table of Content
-* [Prerequisites](#prerequisites)
-* [Solution Setup](#solution-setup)
-  * [Step 1 : Installation](#intallation)
-  * [Step 2 : Environment Configuration](#environment-configuration)
-  * [Step 3 : Running the Application](#running-the-application)
-  * [Step 4 : Verify the Application Status](#verify-the-application-status) 
-* [Steps for enabling sentiment analysis component](#steps-for-enabling-sentiment-analysis-component)
+
+1. [Prerequisites](#prerequisites)
+2. [Solution Setup](#solution-setup)
+   * [Step 1 : Installation](#installation)
+   * [Step 2 : Environment Configuration](#environment-configuration)
+   * [Step 3 : Running the Application](#running-the-application)
+   * [Step 4 : Verify the Application Status](#verify-the-application-status)
+3. [API Documentation](#api-documentation)
 
 ## Prerequisites
 
-We are assuming [docker-compose](https://docs.docker.com/compose/) and [docker](https://docker.com)
-is already installed, which is required to run and deploy the system.
+* For docker based installation [Docker](https://docker.com) need to be installed.
+* Admin access to [Keycloak](../forms-flow-idm/keycloak) server and ensure audience(camunda-rest-api) is setup in Keycloak-bpm server.
 
 ## Solution Setup
 
+### Installation
+
+If you are interested in contributing to the project, you can install through docker or locally.
+
+It's recommended to download dev-packages to follow Python coding standards for project like PEP8 if you are interested in contributing to project.
+You installing dev-packages using pip as follows:
+
+```python3 -m pip install -r requirements/dev.txt```
+
 ### Keycloak Setup
 
-No specific client creation is required. Audience has been added for clients 
+No specific client creation is required. Audience has been added for clients
 **forms-flow-web** and **forms-flow-bpm**.  
 
 ### Environment Configuration
 
-Environment variables are set in **.env** and read by the system.
+* Make sure you have a Docker machine up and running.
+* Make sure your current working directory is "forms-flow-ai/forms-flow-api".
+* Rename the file [sample.env](./sample.env) to **.env**.
+* Modify the environment variables in the newly created **.env** file if needed. Environment variables are given in the table below,
+* **NOTE : {your-ip-address} given inside the .env file should be changed to your host system IP address. Please take special care to identify the correct IP address if your system has multiple network cards**
 
-   * Make sure you have a Docker machine up and running.
-   * Make sure your current working directory is "forms-flow-webapi".
-   * Rename the file **sample.env** to **.env**.
-   * Modify the configuration values as needed. Details below,
+> :information_source: Variables with trailing :triangular_flag_on_post: in below table should be updated in the .env file
 
 Variable name | Meaning | Possible values | Default value |
 --- | --- | --- | ---
-`WEB_API_POSTGRES_USER`|formsflow database postgres user|Used on installation to create the database.Choose your own|`postgres`
-`WEB_API_POSTGRES_PASSWORD`|formsflow database postgres password|ditto|`changeme`
-`WEB_API_POSTGRES_DB`|formsflow database name||`formsflow`
-`WEB_API_DATABASE_URL`|JDBC DB Connection URL for formsflow||`postgresql://postgres:changeme@forms-flow-webapi-db:5432/formsflow`
-`KEYCLOAK_TOKEN_URL`|Keycloak OIDC token API for clients|Plug in your Keycloak base url and realm name|`{Keycloak URL}/auth/realms/<realm>/protocol/openid-connect/token`
-`KEYCLOAK_JWT_OIDC_CONFIG`|Path to Keycloak well-know config for realm|Plug in your Keycloak URL plus realm|`{Keycloak URL}/auth/realms/<REALM>/.well-known/openid-configuration`
-`KEYCLOAK_JWT_OIDC_JWKS_URI`|Keycloak JWKS URI|Plug in Keycloak base url plus realm|`{Keycloak URL}/auth/realms/<REALM>/protocol/openid-connect/certs`
-`KEYCLOAK_JWT_OIDC_ISSUER`|The issuer of JWT's from Keycloak for your realm|Plug in your realm and Keycloak base url|`{Keycloak URL}/auth/realms/forms-flow-ai`
-`KEYCLOAK_BPM_CLIENTID`|Client ID for Camunda to register with Keycloak|eg. forms-flow-bpm|must be set to your Keycloak client id
-`KEYCLOAK_BPM_CLIENTSECRET`|Client Secret of Camunda client in realm|eg. 22ce6557-6b86-4cf4-ac3b-42338c7b1ac12|must be set to your Keycloak client secret
-`KEYCLOAK_WEB_CLIENTID`|Client ID for formsflow to register with Keycloak|eg. forms-flow-web|must be set to your Keycloak client id
-`CAMUNDA_API_URI`|Camunda Rest API URI||`http://localhost:8000/camunda`
-`WEB_API_BASE_URL`|formsflow.ai Rest API URI||`http://localhost:5000`
-`MONGODB_URI`|Mongo DB Connection URL of formio for sentiment analysis||`mongodb://username:password@host:port/analytics?authSource=admin&authMechanism=SCRAM-SHA-256`
+`INSIGHT_API_URL`:triangular_flag_on_post: | The forms-flow-analytics Api base end-point | | <http://{your-ip-address}:7000> |
+`INSIGHT_API_KEY` :triangular_flag_on_post: | The forms-flow-analytics admin API key | | `Get the api key from forms-flow-analytics (REDASH) by following the 'Get the Redash API Key' steps from [here](../forms-flow-analytics/README.md#get-the-redash-api-key)`
+`FORMSFLOW_API_DB_USER`|formsflow database postgres user|Used on installation to create the database.Choose your own|`postgres`
+`FORMSFLOW_API_DB_PASSWORD`|formsflow database postgres password|Used on installation to create the database.Choose your own|`changeme`
+`FORMSFLOW_API_DB_NAME`|formsflow database name|Used on installation to create the database.Choose your own|`FORMSFLOW_API_DB`
+`FORMSFLOW_API_DB_URL`|JDBC DB Connection URL for formsflow||`postgresql://postgres:changeme@forms-flow-webapi-db:5432/webapi`
+`KEYCLOAK_URL`:triangular_flag_on_post:| URL to your Keycloak server || `http://{your-ip-address}:8080`
+`KEYCLOAK_URL_REALM`|The Keycloak realm to use|eg. forms-flow-ai | `forms-flow-ai`
+`KEYCLOAK_ADMIN_USERNAME` :triangular_flag_on_post: | The admin username for Keycloak. This is used for using Keycloak internal APIs  | |
+`KEYCLOAK_ADMIN_PASSWORD` :triangular_flag_on_post: | The admin password for Keycloak. | |
+`KEYCLOAK_BPM_CLIENT_ID`|Client ID for Camunda to register with Keycloak|eg. forms-flow-bpm|`forms-flow-bpm`
+`KEYCLOAK_BPM_CLIENT_SECRET`:triangular_flag_on_post:|Client Secret of Camunda client in realm|eg. 22ce6557-6b86-4cf4-ac3b-42338c7b1ac12|must be set to your Keycloak client secret. Follow the steps from [Here](../forms-flow-idm/keycloak/README.md#getting-the-client-secret)
+`KEYCLOAK_WEB_CLIENT_ID`|Client ID for formsflow to register with Keycloak|eg. forms-flow-web|`forms-flow-web`
+`CAMUNDA_API_URL`:triangular_flag_on_post:|Camunda Rest API URL||`http://{your-ip-address}:8000/camunda`
+`FORMSFLOW_API_URL`:triangular_flag_on_post:|formsflow.ai Rest API URL||`http://{your-ip-address}:5000`
+`FORMSFLOW_API_CORS_ORIGINS`| formsflow.ai Rest API allowed origins, for allowing multiple origins you can separate host address using a comma seperated string or use * to allow all origins |eg:`host1, host2, host3`| `*`
 
-
- **Additionally, you may want to change these**  
-*   The value of Datastore credentials (especially if this instance is not just for testing purposes)
+**NOTE : Default realm is `forms-flow-ai`**
 
 ### Running the Application
+
+* forms-flow-api service uses port 5000, make sure the port is available.
+* `cd {Your Directory}/forms-flow-ai/forms-flow-api`
+
 * For Linux,
-   * Run `docker-compose -f docker-compose-linux.yml build` to build.
-   * Run `docker-compose -f docker-compose-linux.yml up -d` to start.
+  * Run `docker-compose -f docker-compose-linux.yml up -d` to start.
 * For Windows,
-   * Run `docker-compose -f docker-compose-windows.yml build` to build.
-   * Run `docker-compose -f docker-compose-windows.yml up -d` to start.
-   
+  * Run `docker-compose -f docker-compose-windows.yml up -d` to start.
+
+*NOTE: Use --build command with the start command to reflect any future **.env** changes eg : `docker-compose -f docker-compose-windows.yml up --build -d`*
+
 #### To Stop the Application
+
 * For Linux,
-  * Run `docker-compose -f docker-compose-linux.yml down` to stop.
+  * Run `docker-compose -f docker-compose-linux.yml stop` to stop.
 * For Windows,
-  * Run `docker-compose -f docker-compose-windows.yml down` to stop.
-   
+  * Run `docker-compose -f docker-compose-windows.yml stop` to stop.
+
 ### Verify the Application Status
 
-   The application should be up and available for use at port defaulted to 5000 in docker-compose.yml (i.e. http://localhost:5000/)
+   The application should be up and available for use at port defaulted to 5000 in <http://localhost:5000/>
   
-    
-   * Get the access token
+* Access the **/checkpoint** endpoint for a Health Check on API to see it's up and running.
+
 ```
-POST {Keycloak URL}/auth/realms/process-engine/protocol/openid-connect/token
+GET http://localhost:5000/checkpoint
+
+RESPONSE
+
+{
+    "message": "Welcome to formsflow.ai API"
+}
+```
+
+* Get the access token
+
+```
+POST {Keycloak URL}/auth/realms/<realm>/protocol/openid-connect/token
 
 Body:
 grant_type: client_credentials
@@ -89,36 +117,22 @@ client_id: forms-flow-bpm
 Headers:
 Content-Type : application/x-www-form-urlencoded
 
-```   
-   * Access the **/task** endpoint and verify response.
-``` 
+```
+
+* Access the **/task** endpoint and verify response. Ensure Bearer token is passed along
+
+```
 GET http://localhost:5000/task
 
 Headers:
 Content-Type : application/json
 Authorization: Bearer {access token}
-``` 
+```
 
-   * Checkout out the API documentation which can be accessed at **/swagger** endpoint.
-   
-## Steps for enabling Sentiment Analysis component
+## API Documentation
 
-One of the unique features of the formsflow.ai framework is Sentiment Analysis. It can
-analyze the sentiment from forms based on specific topics mentioned by the designer
-during form creation.
+The API docs can be accessed by checking the **/** root endpoint.
 
-- A form designer can drag and drop **Text Area with Analytics component** and in section
-**Data** add key topics for Sentiment Analysis like facility, service, etc. This activates
-sentiment analysis component.
-- Based on the input responses of the user formsflow.ai process sentiment associated
- with each user's responses and stores it MongoDB database using **Python API**.
-- You can take data stored in mongodb and create **meaningful visualization** based on the 
-output of sentiment API in Redash dashboards. This information can be found in the **Insights section**
-for staff user formsflow.ai.
+![image](https://user-images.githubusercontent.com/70306694/130730233-cf443a84-7716-4be6-b196-cb340509c495.png)
 
-### About Sentiment Analysis model
-
-Currently, the ML model is build leveraging libraries like Spacy and NLTK. It uses a two
-stage pipeline process to find the entities belonging to a topic and their associated
-sentiment. We use a named entity recognition model(NER) to train to identify the topics,
-and further sentiment analysis is being done for individual entities.
+Further documentation and associated postman collection for API endpoint can found in the [docs folder](./docs)

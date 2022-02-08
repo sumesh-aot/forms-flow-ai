@@ -11,8 +11,9 @@ import { push } from "connected-react-router";
 /*import { Link } from "react-router-dom";*/
 import { SUBMISSION_ACCESS } from "../../../constants/constants";
 import {addHiddenApplicationComponent} from "../../../constants/applicationComponent";
+import {toast} from "react-toastify";
 
-const Edit = (props) => (
+const Edit = React.memo((props) => (
   <div className="container">
     <div className="main-header">
       {/* <Link to="/form">
@@ -28,7 +29,7 @@ const Edit = (props) => (
     <Errors errors={props.errors} />
     <FormEdit {...props} />
   </div>
-);
+));
 
 const mapStateToProps = (state) => {
   return {
@@ -46,9 +47,11 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       return dispatch(
         saveForm("form", form, (err, form) => {
           if (!err) {
-            // TODO: Display a save success message here.
+            toast.success('Form Saved');
             dispatch(push(`/formflow/${form._id}/preview`));
             // ownProps.setPreviewMode(true);
+          }else{
+            toast.error("Error while saving Form");
           }
         })
       );

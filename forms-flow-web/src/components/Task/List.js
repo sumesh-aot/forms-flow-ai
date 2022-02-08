@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {PureComponent} from "react";
 import { connect } from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory from "react-bootstrap-table2-filter";
@@ -23,7 +23,7 @@ import Nodata from "./nodata";
 import { setUpdateLoader } from "../../actions/taskActions";
 import {getLocalDateTime} from "../../apiManager/services/formatterService";
 
-const List = class extends Component {
+const List = class extends PureComponent {
   UNSAFE_componentWillMount() {
     this.props.getTasks();
   }
@@ -49,7 +49,7 @@ const List = class extends Component {
             submissionDate: getLocalDateTime(task.submissionDate),
             // dueDate: (task.due || "Set due date"),
             form: task.formName || "---",
-            userName: userDetail.preferred_username,
+            userName: userDetail?.preferred_username||"",
             assignToMeFn: onClaim,
             unAssignFn: onUnclaim,
           };
@@ -91,14 +91,14 @@ const List = class extends Component {
             <div className="container">
               <div className="main-header">
               <h3 className="task-head">
-              <i className="fa fa-list" aria-hidden="true"/>
+              <i className="fa fa-list" />
                 &nbsp; Tasks
                   <div className="col-md-1 task-count">({tasks.length})</div>
                 </h3>
                 <div className="col-md-2 btn-group">
                   <TaskSearch
                     {...props.searchProps}
-                    user={this.props.userDetail.preferred_username}
+                    user={this.props.userDetail?.preferred_username||""}
                   />
                 </div>
               </div>

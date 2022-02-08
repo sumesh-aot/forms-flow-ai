@@ -6,7 +6,7 @@ import {getLocalDateTime} from "../../../apiManager/services/formatterService";
 
 
 
-const ApplicationDetails = (props) => {
+const ApplicationDetails = React.memo((props) => {
   const application = props.application;
   return (
     <Table responsive>
@@ -14,40 +14,40 @@ const ApplicationDetails = (props) => {
       <tr>
         <td className="border-0">Application Id</td>
         <td className="border-0">:</td>
-        <td className="border-0">{application.id}</td>
+        <td className="border-0" id="application-id">{application.id}</td>
       </tr>
       <tr>
         <td className="border-0">Application Name</td>
         <td className="border-0">:</td>
-        <td className="border-0">{startCase(application.applicationName)}</td>
+        <td className="border-0" id="application-name">{startCase(application.applicationName)}</td>
       </tr>
       <tr>
         <td className="border-0">Created By</td>
         <td className="border-0">:</td>
-        <td className="border-0">{application.createdBy}</td>
+        <td className="border-0" id="created-by">{application.createdBy}</td>
       </tr>
       <tr>
         <td className="border-0">Application Status</td>
         <td className="border-0">:</td>
-        <td className="border-0">{application.applicationStatus}</td>
+        <td className="border-0" id="application-status">{application.applicationStatus}</td>
       </tr>
       <tr>
         <td className="border-0">Submitted On</td>
         <td className="border-0">:</td>
-        <td className="border-0">
+        <td className="border-0" id="application-created">
           {getLocalDateTime(application.created)}
         </td>
       </tr>
       <tr>
         <td className="border-0">Modified On</td>
         <td className="border-0">:</td>
-        <td className="border-0">
+        <td className="border-0" id="application-modified">
           {getLocalDateTime(application.modified)}
         </td>
       </tr>
       </tbody>
     </Table>
   );
-};
+});
 
 export default ApplicationDetails;
