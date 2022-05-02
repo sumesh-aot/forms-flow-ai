@@ -1,11 +1,10 @@
 """Common setup and fixtures for the pytest suite used by this service."""
-
 import pytest
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
 from sqlalchemy.schema import DropConstraint, MetaData
 
-from formsflow_api import create_app
+from formsflow_api import create_app, setup_jwt_manager
 from formsflow_api.models import db as _db
 from formsflow_api.utils import jwt as _jwt
 
@@ -108,7 +107,7 @@ def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
         def restart_savepoint(sess2, trans):  # pylint: disable=unused-variable
             # Detecting whether this is indeed the nested transaction of the test
             if (
-                trans.nested and not trans._parent.nested
+                    trans.nested and not trans._parent.nested
             ):  # pylint: disable=protected-access
                 # Handle where test DOESN'T session.commit(),
                 sess2.expire_all()
@@ -126,3 +125,22 @@ def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
         # This instruction rollsback any commit that were executed in the tests.
         txn.rollback()
         conn.close()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def auto(docker_services, app):
+    """Spin up a keycloak instance and initialize jwt."""
+    if app.config.get('USE_DOCKER_MOCK'):
+        docker_services.start('keycloak')
+        docker_services.wait_for_service('keycloak', 8081)
+        setup_jwt_manager(app, _jwt)
+
+
+@pytest.fixture(scope="session")
+def docker_compose_files(pytestconfig):
+    """Get the docker-compose.yml absolute path."""
+    import os
+
+    return [
+        os.path.join(str(pytestconfig.rootdir), "tests/docker", "docker-compose.yml")
+    ]
