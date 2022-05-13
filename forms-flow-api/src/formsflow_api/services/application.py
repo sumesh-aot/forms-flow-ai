@@ -70,6 +70,8 @@ class ApplicationService:
                         tenant_key=mapper.process_tenant,
                     )
                 else:
+                    if mapper.tenant:
+                        payload["tenantId"] = mapper.tenant
                     camunda_start_task = BPMService.post_process_start(
                         process_key=mapper.process_key, payload=payload, token=token
                     )
