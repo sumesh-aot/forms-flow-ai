@@ -14,9 +14,12 @@ class BaseBPMService:
     @classmethod
     def get_request(cls, url, token):
         """Get HTTP request to BPM API with auth header."""
+        print(url, token)
         headers = cls._get_headers_(token)
-        response = requests.get(url, headers=headers)
+        print(headers)
 
+        response = requests.get(url, headers=headers)
+        print(response)
         data = None
         if response.ok:
             data = json.loads(response.text)
