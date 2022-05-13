@@ -29,12 +29,13 @@ class BPMService(BaseBPMService):
         return cls.get_request(url, token)
 
     @classmethod
-    def get_process_details(cls, process_key, token):
+    def get_process_details_by_key(cls, process_key, token):
         """Get process details."""
-        current_app.logger.debug("Getting process details. Process Key : %s, Token : %s", process_key, token)
-        url = f"{cls._get_url_(BPMEndpointType.PROCESS_DEFINITION)}/{process_key}"
-        current_app.logger.debug("URL for getting process details : %s", url)
-        return cls.get_request(url, token)
+        current_app.logger.debug("Getting process details. Process Key : %s", process_key)
+        for process_definition in cls.get_all_process(token):
+            if process_definition.get('key') == process_key:
+                return process_definition
+        return None
 
     @classmethod
     def get_process_definition_xml(cls, process_key, token):
