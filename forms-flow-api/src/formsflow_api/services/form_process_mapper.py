@@ -76,9 +76,9 @@ class FormProcessMapperService:
         user: UserContext = kwargs["user"]
         tenant_key = user.tenant_key
         mapper = FormProcessMapper.find_form_by_form_id(form_id=form_id)
-        print('mapper ', mapper)
-        print(mapper.tenant, tenant_key)
         if mapper:
+            print('mapper ', mapper)
+            print(mapper.tenant, tenant_key)
             if tenant_key is not None and mapper.tenant != tenant_key:
                 raise PermissionError("Tenant authentication failed.")
             mapper_schema = FormProcessMapperSchema()
