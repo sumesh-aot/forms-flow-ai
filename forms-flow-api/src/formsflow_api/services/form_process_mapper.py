@@ -107,6 +107,7 @@ class FormProcessMapperService:
         # For multi tenant environment find if the process is deployed for a tenant.
         if current_app.config.get('MULTI_TENANCY_ENABLED'):
             current_app.logger.info("Finding Tenant ID for process %s ", data.get("process_key"))
+            current_app.logger.info(BPMService.get_process_details_by_key(data.get("process_key"), user.bearer_token))
             data["process_tenant"] = BPMService.get_process_details_by_key(
                 data.get("process_key"), user.bearer_token
             ).get("tenantId", None)
