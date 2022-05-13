@@ -32,7 +32,7 @@ class BPMService(BaseBPMService):
     def get_process_details(cls, process_key, token):
         """Get process details."""
         current_app.logger.debug("Getting process details. Process Key : %s, Token : %s", process_key, token)
-        url = cls._get_url_(BPMEndpointType.PROCESS_DEFINITION) + process_key
+        url = f"{cls._get_url_(BPMEndpointType.PROCESS_DEFINITION)}/{process_key}"
         current_app.logger.debug("URL for getting process details : %s", url)
         return cls.get_request(url, token)
 
