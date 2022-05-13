@@ -32,7 +32,7 @@ class BPMService(BaseBPMService):
     @classmethod
     def get_process_details_by_key(cls, process_key, token):
         """Get process details."""
-        current_app.logger.debug("Getting process details. Process Key : %s", process_key, cls.get_all_process(token))
+        current_app.logger.debug("Getting process details. Process Key : %s", process_key)
         for process_definition in cls.get_all_process(token):
             if process_definition.get('key') == process_key:
                 return process_definition
