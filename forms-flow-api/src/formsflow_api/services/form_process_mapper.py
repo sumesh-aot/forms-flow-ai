@@ -76,6 +76,8 @@ class FormProcessMapperService:
         user: UserContext = kwargs["user"]
         tenant_key = user.tenant_key
         mapper = FormProcessMapper.find_form_by_form_id(form_id=form_id)
+        print('mapper ', mapper)
+        print(mapper.tenant, tenant_key)
         if mapper:
             if tenant_key is not None and mapper.tenant != tenant_key:
                 raise PermissionError("Tenant authentication failed.")
@@ -104,13 +106,15 @@ class FormProcessMapperService:
 
     @staticmethod
     def _update_process_tenant(data, user):
+        print(' _update_process_tenant >> ', data, user)
         # For multi tenant environment find if the process is deployed for a tenant.
-        if current_app.config.get('MULTI_TENANCY_ENABLED'):
-            current_app.logger.info("Finding Tenant ID for process %s ", data.get("process_key"))
-            current_app.logger.info(BPMService.get_process_details_by_key(data.get("process_key"), user.bearer_token))
+        if current_app.config.get('MULTI_TENANCY_ENABLED') and (process_key := data.get('process_key', None)):
+            current_app.logger.info("Finding Tenant ID for process %s ", process_key)
+            current_app.logger.info(BPMService.get_process_details_by_key(process_key, user.bearer_token))
             data["process_tenant"] = BPMService.get_process_details_by_key(
-                data.get("process_key"), user.bearer_token
+                process_key, user.bearer_token
             ).get("tenantId", None)
+        print(' _update_process_tenant << ', data)
 
     @staticmethod
     @user_context
