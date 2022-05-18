@@ -26,7 +26,8 @@ class RedashAPIService:  # pylint: disable=too-few-public-methods
         analytics_admin_token = current_app.config.get("ANALYTICS_API_KEY")
         headers = {"Authorization": analytics_admin_token}
         response = requests.get(url, headers=headers)
-
+        current_app.logger.debug("Response from analytics  %s", response)
+        current_app.logger.debug("Response from analytics  %s", response.json())
         if response.ok:
             return response.json()
         if response.status_code == HTTPStatus.NOT_FOUND:
