@@ -97,11 +97,13 @@ class KeycloakAdminAPIService:
     @user_context
     def get_analytics_roles(self, page_no: int, limit: int, **kwargs):
         """Return roles for analytics users."""
+        current_app.logger.debug("Getting analytics roles")
         dashboard_roles_list: list = []
         user: UserContext = kwargs["user"]
         client_name = current_app.config.get("JWT_OIDC_AUDIENCE")
         if current_app.config.get("MULTI_TENANCY_ENABLED"):
             client_name = f"{user.tenant_key}-{client_name}"
+        current_app.logger.debug("Client name %s", client_name)
         # Find client id from keycloak using client name
         url_path = f"clients?clientId={client_name}&search=true"
         clients_response = self.get_request(url_path)
@@ -117,9 +119,9 @@ class KeycloakAdminAPIService:
                         first=page_no,
                         max_results=limit,
                     )
-
+                current_app.logger.debug("Client roles %s", roles)
                 for client_role in roles:
-                    if client_role not in FORMSFLOW_ROLES:
+                    if client_role['name'] not in FORMSFLOW_ROLES:
                         client_role["dashboards"] = (
                             self.get_request(
                                 url_path=f"roles-by-id/{client_role['id']}?client={client_id}"
@@ -128,6 +130,7 @@ class KeycloakAdminAPIService:
                             .get("dashboards")
                         )
                         dashboard_roles_list.append(client_role)
+        current_app.logger.debug("dashboard_roles_list %s", dashboard_roles_list)
         return dashboard_roles_list
 
     @profiletime

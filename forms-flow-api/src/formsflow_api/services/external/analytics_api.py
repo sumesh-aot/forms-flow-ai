@@ -22,6 +22,7 @@ class RedashAPIService:  # pylint: disable=too-few-public-methods
             url = f"{base_url}/api/{url_path}"
         else:
             url = f"{base_url}/api/{url_path}?page={page_no}&page_size={limit}"
+        current_app.logger.debug("URL for getting dashboard  %s", url)
         analytics_admin_token = current_app.config.get("ANALYTICS_API_KEY")
         headers = {"Authorization": analytics_admin_token}
         response = requests.get(url, headers=headers)
