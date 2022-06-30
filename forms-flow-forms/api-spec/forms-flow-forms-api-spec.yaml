@@ -74,6 +74,32 @@ paths:
                   description: string
                   designer: true
                   _id: '123'
+    get:
+      summary: ''
+      operationId: get-role
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+              examples:
+                example-1:
+                  value:
+                    - tenantKey: string
+                      title: string
+                      description: string
+                      designer: true
+                      _id: string
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: machineName
+          description: Machine name
   /user/login:
     post:
       summary: Admin Login
@@ -455,8 +481,7 @@ paths:
           in: header
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYyOGYwZWUyMTljZWJiOWNlYTRmMTJiMiJ9LCJmb3JtIjp7Il9pZCI6IjYyOGYwZWUwMTljZWJiOWNlYTRmMTIzZiJ9LCJpYXQiOjE2NTU4OTAyMTUsImV4cCI6MTY1NTkwNDYxNX0.4IEK2N7j9et_VyN2kTDrgb_IUz5ByY9LQgB_Twvs8vE
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYyOGYwZWUyMTljZWJiOWNlYTRmMTJiMiJ9LCJmb3JtIjp7Il9pZCI6IjYyOGYwZWUwMTljZWJiOWNlYTRmMTIzZiJ9LCJpYXQiOjE2NTU4OTAyMTUsImV4cCI6MTY1NTkwNDYxNX0.4IEK2N7j9et_VyN2kTDrgb_IUz5ByY9LQgB_Twvs8vE
       responses:
         '201':
           description: Created
@@ -480,8 +505,7 @@ paths:
             x-jwt-token:
               schema:
                 type: string
-                example: >-
-                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYyOGYwZWUyMTljZWJiOWNlYTRmMTJiMiJ9LCJmb3JtIjp7Il9pZCI6IjYyOGYwZWUwMTljZWJiOWNlYTRmMTIzZiJ9LCJpYXQiOjE2NTU4OTA4MjMsImV4cCI6MTY1NTkwNTIyM30.aGDjT15_APtrqg5It5PrxK-ygv6vCEmwnpLl899u5a8
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYyOGYwZWUyMTljZWJiOWNlYTRmMTJiMiJ9LCJmb3JtIjp7Il9pZCI6IjYyOGYwZWUwMTljZWJiOWNlYTRmMTIzZiJ9LCJpYXQiOjE2NTU4OTA4MjMsImV4cCI6MTY1NTkwNTIyM30.aGDjT15_APtrqg5It5PrxK-ygv6vCEmwnpLl899u5a8
             Content-Type:
               schema:
                 type: string
@@ -493,7 +517,7 @@ paths:
             Date:
               schema:
                 type: string
-                example: Wed, 22 Jun 2022 09:40:23 GMT
+                example: 'Wed, 22 Jun 2022 09:40:23 GMT'
             Connection:
               schema:
                 type: string
