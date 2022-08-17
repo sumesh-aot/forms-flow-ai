@@ -38,7 +38,7 @@ jobs:
           install: true
 
       - name: Set version
-        if: ${{ github.ref == 'refs/heads/develop' }}
+        if: ${{ github.ref != 'refs/heads/master' }}
         working-directory: .
         run: |
           VER=$(cat VERSION)
