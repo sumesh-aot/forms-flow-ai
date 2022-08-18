@@ -74,7 +74,7 @@ jobs:
             ${{ runner.os }}-buildx-${{ matrix.name }}
 
       - name: Build and push Docker image
-        if: ${{ github.ref == 'refs/heads/develop' }}
+        if: ${{ github.ref != 'refs/heads/master' }}
         uses: docker/build-push-action@v2
         with:
           context: forms-flow-web
