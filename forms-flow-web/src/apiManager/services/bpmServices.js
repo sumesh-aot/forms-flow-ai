@@ -12,8 +12,6 @@ export const getProcessReq = (form, submissionId, origin ) => {
     formUrl: getFormUrlWithFormIdSubmissionId(form._id, submissionId),
     webFormUrl: `${origin}form/${form._id}/submission/${submissionId}`
   };
-  console.log(requestFormat)
-  debugger
   return requestFormat;
 };
 
