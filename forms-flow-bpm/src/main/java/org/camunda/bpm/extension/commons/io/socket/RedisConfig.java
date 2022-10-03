@@ -19,7 +19,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 /**
  * Configuration for Message Broker.
  */
-@Configuration
+//@Configuration
 public class RedisConfig implements ITaskEvent {
 
 	// @Autowired
