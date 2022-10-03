@@ -20,7 +20,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
  * Configuration for Message Broker.
  */
 @Configuration
-@ConditionalOnProperty(name = "websocket.enableRedis", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true", matchIfMissing = false)
 public class RedisConfig implements ITaskEvent {
 
 	// @Autowired
