@@ -20,7 +20,6 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
  * Configuration for Message Broker.
  */
 @Configuration
-@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true", matchIfMissing = false)
 public class RedisConfig implements ITaskEvent {
 
 	// @Autowired
@@ -39,6 +38,7 @@ public class RedisConfig implements ITaskEvent {
 	private boolean redisEnabled;
 
 	@Bean
+	@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true")
 	RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(messageBrokerHost,
 				Integer.valueOf(messageBrokerPort));
@@ -47,6 +47,7 @@ public class RedisConfig implements ITaskEvent {
 	}
 
 	@Bean
+	@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true")
 	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
 			@Qualifier("taskMessageListenerAdapter") MessageListenerAdapter taskMessageListenerAdapter) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -58,11 +59,13 @@ public class RedisConfig implements ITaskEvent {
 	}
 
 	@Bean("taskMessageListenerAdapter")
+	@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true")
 	MessageListenerAdapter chatMessageListenerAdapter(TaskEventTopicListener taskEventTopicListener) {
 		return new MessageListenerAdapter(taskEventTopicListener, getExecutorName());
 	}
 
 	@Bean
+	@ConditionalOnProperty(value = "${websocket.enableRedis}", havingValue = "true")
 	StringRedisTemplate template(RedisConnectionFactory redisConnectionFactory) {
 		return new StringRedisTemplate(redisConnectionFactory);
 	}
