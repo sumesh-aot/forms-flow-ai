@@ -37,7 +37,7 @@ public class RedisConfig implements ITaskEvent {
 
     @Bean
     RedisConnectionFactory redisConnectionFactory() {
-    	if (!redisEnabled) return null;
+    	if (!redisEnabled) return new LettuceConnectionFactory();
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(messageBrokerHost,Integer.valueOf(messageBrokerPort));
         redisStandaloneConfiguration.setPassword(messageBrokerPasscode);
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
