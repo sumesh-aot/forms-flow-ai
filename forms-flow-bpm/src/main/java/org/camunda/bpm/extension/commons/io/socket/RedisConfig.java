@@ -39,7 +39,6 @@ public class RedisConfig implements ITaskEvent {
 	private boolean redisEnabled;
 
 	@Bean
-	
 	RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(messageBrokerHost,
 				Integer.valueOf(messageBrokerPort));
