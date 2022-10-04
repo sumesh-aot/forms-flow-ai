@@ -20,58 +20,60 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
  * Configuration for Message Broker.
  */
 //@Configuration
+//@ConditionalOnProperty(name = "spring.security.oauth2.resourceserver.jwt.issuer-uri")
+
 public class RedisConfig implements ITaskEvent {
 
-	// @Autowired
-	// private Properties messageBrokerProperties;
-
-	@Value("${websocket.messageBroker.host}")
-	private String messageBrokerHost;
-
-	@Value("${websocket.messageBroker.port}")
-	private String messageBrokerPort;
-
-	@Value("${websocket.messageBroker.passcode}")
-	private String messageBrokerPasscode;
-
-	@Value("${websocket.enableRedis}")
-	private boolean redisEnabled;
-
-	@Bean
-	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
-	RedisConnectionFactory redisConnectionFactory() {
-		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(messageBrokerHost,
-				Integer.valueOf(messageBrokerPort));
-		redisStandaloneConfiguration.setPassword(messageBrokerPasscode);
-		return new LettuceConnectionFactory(redisStandaloneConfiguration);
-	}
-
-	@Bean
-	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
-	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-			@Qualifier("taskMessageListenerAdapter") MessageListenerAdapter taskMessageListenerAdapter) {
-		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-		if (redisEnabled) {
-			container.setConnectionFactory(connectionFactory);
-			container.addMessageListener(taskMessageListenerAdapter, new PatternTopic(getTopicNameForTask()));
-		}
-		return container;
-	}
-
-	@Bean("taskMessageListenerAdapter")
-	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
-	MessageListenerAdapter chatMessageListenerAdapter(TaskEventTopicListener taskEventTopicListener) {
-		return new MessageListenerAdapter(taskEventTopicListener, getExecutorName());
-	}
-
-	@Bean
-	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
-	StringRedisTemplate template(RedisConnectionFactory redisConnectionFactory) {
-		return new StringRedisTemplate(redisConnectionFactory);
-	}
-
-	private String getExecutorName() {
-		return "receiveTaskMessage";
-	}
+//	// @Autowired
+//	// private Properties messageBrokerProperties;
+//
+//	@Value("${websocket.messageBroker.host}")
+//	private String messageBrokerHost;
+//
+//	@Value("${websocket.messageBroker.port}")
+//	private String messageBrokerPort;
+//
+//	@Value("${websocket.messageBroker.passcode}")
+//	private String messageBrokerPasscode;
+//
+//	@Value("${websocket.enableRedis}")
+//	private boolean redisEnabled;
+//
+//	@Bean
+//	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
+//	RedisConnectionFactory redisConnectionFactory() {
+//		RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(messageBrokerHost,
+//				Integer.valueOf(messageBrokerPort));
+//		redisStandaloneConfiguration.setPassword(messageBrokerPasscode);
+//		return new LettuceConnectionFactory(redisStandaloneConfiguration);
+//	}
+//
+//	@Bean
+//	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
+//	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+//			@Qualifier("taskMessageListenerAdapter") MessageListenerAdapter taskMessageListenerAdapter) {
+//		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//		if (redisEnabled) {
+//			container.setConnectionFactory(connectionFactory);
+//			container.addMessageListener(taskMessageListenerAdapter, new PatternTopic(getTopicNameForTask()));
+//		}
+//		return container;
+//	}
+//
+//	@Bean("taskMessageListenerAdapter")
+//	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
+//	MessageListenerAdapter chatMessageListenerAdapter(TaskEventTopicListener taskEventTopicListener) {
+//		return new MessageListenerAdapter(taskEventTopicListener, getExecutorName());
+//	}
+//
+//	@Bean
+//	@ConditionalOnProperty(value = "websocket.enableRedis", havingValue = "true")
+//	StringRedisTemplate template(RedisConnectionFactory redisConnectionFactory) {
+//		return new StringRedisTemplate(redisConnectionFactory);
+//	}
+//
+//	private String getExecutorName() {
+//		return "receiveTaskMessage";
+//	}
 
 }
