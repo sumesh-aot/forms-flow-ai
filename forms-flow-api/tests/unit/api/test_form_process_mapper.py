@@ -5,6 +5,7 @@ from tests.utilities.base_test import (
     get_application_create_payload,
     get_form_request_anonymous_payload,
     get_form_request_payload,
+    get_formio_form_request_payload,
     get_token,
 )
 
@@ -155,7 +156,6 @@ def test_form_process_mapper_test_update(app, client, session, jwt):
         f"/form/{form_id}", headers=headers, json=get_form_request_payload()
     )
     assert rv.status_code == 200
-    assert rv.json == f"Updated FormProcessMapper ID {form_id} successfully"
 
 
 def test_anonymous_form_process_mapper_test_update(app, client, session, jwt):
@@ -177,8 +177,6 @@ def test_anonymous_form_process_mapper_test_update(app, client, session, jwt):
         f"/form/{form_id}", headers=headers, json=get_form_request_anonymous_payload()
     )
     assert rv.status_code == 200
-    data = rv.json
-    assert data == f"Updated FormProcessMapper ID {form_id} successfully"
 
 
 def test_get_application_count_based_on_form_process_mapper_id(
@@ -252,3 +250,13 @@ def test_get_task_variable_based_on_form_process_mapper_id(app, client, session,
 
     rv = client.get(f"/form/applicationid/{application_id}", headers=headers)
     assert rv.status_code == 200
+
+
+def test_formio_form_creation(app, client, session, jwt):
+    """Testing formio form create API."""
+    token = get_token(jwt, role="formsflow-designer", username="designer")
+    headers = {"Authorization": f"Bearer {token}", "content-type": "application/json"}
+    response = client.post(
+        "/form/form-create", headers=headers, json=get_formio_form_request_payload()
+    )
+    assert response.status_code == 201

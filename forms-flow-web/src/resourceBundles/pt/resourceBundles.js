@@ -1,5 +1,10 @@
+/* eslint-disable max-len */
 export const RESOURCE_BUNDLES_PT = {
-
+  "Please change the selected filters to view Forms":"Por favor, altere os filtros selecionados para visualizar os formulários",
+  "Search by form name":"Pesquisar pelo nome do formulário",
+  "Click to search":"Clique para pesquisar",
+  "No submissions found":"Nenhum envio encontrado",
+  "No submission avaliable in the selected date. Please select another date range":"Nenhuma submissão disponível na data selecionada. Selecione outro intervalo de datas",
   "Dashboards":"Painéis",
   "Form field":"Campo do formulário",
   "Enter Label":"Digite o rótulo",
@@ -26,6 +31,7 @@ export const RESOURCE_BUNDLES_PT = {
   "Form Saved": "Formulário salvo.",
   "Error while saving Form.": "Erro ao salvar o formulário.",
   "Are you sure you wish to delete the form": "Tem certeza que deseja deletar o formulário",
+  "Are you sure you wish to delete the form?":"Tem certeza de que deseja excluir o formulário?",
   "Forms": "Formulários",
   "Edit": "Editar",
  "Text Field": "Campo de texto",
@@ -155,10 +161,11 @@ export const RESOURCE_BUNDLES_PT = {
   "Select All": "Selecionar tudo",
   "Created Date": "Data de criação",
  "Modified Date": "Data modificada",
-  "Files Upload Confirmation": "Confirmação de upload de arquivos",
+  "File Upload Status": "Status de upload de arquivo",
   "Forms Completed": "Formulários preenchidos",
+  "Form Completed" : "Formulário preenchido",
   "No forms found": "Nenhum formulário encontrado",
-  "Powered by": "Distribuído por",
+  "Powered by ": "Distribuído por ",
   "No Process Diagram found": "Nenhum diagrama de processo encontrado",
   "No applications found": "Nenhum aplicativo encontrado",
   "Successfully Updated": "Atualizado com sucesso",
@@ -184,6 +191,7 @@ export const RESOURCE_BUNDLES_PT = {
   "Loading...":"Carregando...",
   "Wizard":"Mago",
   "Save Form":"Salvar formulário",
+  "Confirm":"confirme",
   "Cancel":"Cancelar",
   "Please change the selected filters to view applications":"Por favor, altere os filtros selecionados para visualizar os aplicativos",
   "No submissions available for the selected date range":"Nenhum envio disponível para o período selecionado",
@@ -206,10 +214,42 @@ export const RESOURCE_BUNDLES_PT = {
   "Form deleted successfully":"Formulário excluído com sucesso",
   "Form process failed":"Falha no processo do formulário",
   "Form unpublishing Failed":"Falha ao cancelar a publicação do formulário",
-  "All groups have access to the dashboard":"Todos os grupos têm acesso ao painel"
+  "All groups have access to the dashboard":"Todos os grupos têm acesso ao painel",
+  "Export PDF":"Exportar PDF",
+  "Something went wrong. Please try again!":"Algo deu errado. Por favor, tente novamente!",
+  "No Dashboards Found":"Nenhum painel encontrado",
+  "Processes":"Processos",
+  "Please select an existing workflow.":"Selecione um fluxo de trabalho existente.",
+  "Create New":"Crie um novo",
+  "Or create new workflow or import a workflow from a local directory.":"Ou crie um novo fluxo de trabalho ou importe um fluxo de trabalho de um diretório local.",
+  "The operation couldn't be completed. Please try after sometime":"A operação não pôde ser concluída. Por favor, tente depois de algum tempo",
+  "Select...":"Selecionar...",
+  "No Drafts Found": "Nenhum rascunho encontrado",
+  "Help":"Ajuda",
+  "Draft Id":"ID de rascunho",
+  "Draft Name":"Nome do rascunho",
+  "Link To Draft Submission":"Link para envio de rascunho",
+  "Drafts":"Rascunhos",
+  "You can't submit this form until it is published":"Você não pode enviar este formulário até que ele seja publicado",
+  "Form not published":"Formulário não publicado",
+  "Access Denied" : "Acesso negado",
+  "By default, the tenant key would be prefixed to form":"Por padrão, a chave do locatário seria prefixada para formar",
+  "go back":"volte",
+  "No Applications Found":"Nenhum aplicativo encontrado",
+  "Submission saved to draft.":"Envio salvo como rascunho.",
+  "Saved to draft":"Salvo no rascunho",
+  "Saving...":"Salvando...",
+  "Unfinished applications will be saved to drafts.":"Aplicativos inacabados serão salvos em rascunhos.",
+  "Resource":"Recurso",
+  "Error in creating form process mapper":"Erro ao criar mapeador de processo de formulário",
+  "Select the date":"Selecione a data",
+  "Diagram Deployed":"Diagrama implantado",
+  "Deployment Failed":"Falha na implantação",
+  "Process name(s) must not be empty":"O(s) nome(s) do processo não deve(m) estar vazio(s)",
+  "URL copied":"URL copiado",
+  "Click Here to Copy":"Clique aqui para copiar"
 
 
 
 
-
-}
+};

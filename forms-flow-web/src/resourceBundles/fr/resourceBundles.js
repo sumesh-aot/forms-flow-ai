@@ -1,5 +1,10 @@
+/* eslint-disable max-len */
 export const RESOURCE_BUNDLES_FR = {
-
+  "Please change the selected filters to view Forms":"Veuillez modifier les filtres sélectionnés pour afficher les formulaires",
+  "Search by form name":"Rechercher par nom de formulaire",
+  "Click to search":"Cliquez pour rechercher",
+  "No submissions found":"Aucune soumission trouvée",
+  "No submission avaliable in the selected date. Please select another date range":"Aucune soumission disponible à la date sélectionnée. Veuillez sélectionner une autre plage de dates",
   "Dashboards":"Tableaux de bord",
   "Form field":"Champ de formulaire",
   "Enter Label":"Entrez l'étiquette",
@@ -28,6 +33,7 @@ export const RESOURCE_BUNDLES_FR = {
   "No forms found":"Aucun formulaire trouvé",
   "All steps completed - you're finished":"Toutes les étapes terminées - vous avez terminé",
   "Are you sure you wish to delete the form":"Êtes-vous sûr de vouloir supprimer le formulaire",
+  "Are you sure you wish to delete the form?":"Êtes-vous sûr de vouloir supprimer le formulaire?",
   "Edit":"Éditer",
  'Text Field': 'champ de texte',
   "Do you want to associate form with a workflow ?":"Vous souhaitez associer un formulaire à un workflow ?",
@@ -153,17 +159,17 @@ export const RESOURCE_BUNDLES_FR = {
   "Select All":"Tout sélectionner",
   "Created Date":"Date de création",
  "Modified Date":"Date modifiée",
-  "Files Upload Confirmation":"Confirmation du téléchargement des arquivosn",
+  "File Upload Status":"État du téléchargement du fichier",
   "Forms Completed":"Formulaires remplis",
+  "Form Completed" : "Formulaire complété",
   " No forms found":"Aucun formulaire trouvé",
-  "Powered by":"Alimenté par",
-  "No applications found":"No applications found",
+  "Powered by ":"Alimenté par ",
+  "No applications found":"Aucune application trouvée",
   "Successfully Updated":"Mise à jour réussie",
   "Failed":"Manquée",
   "Submission Failed.":"Изпращането не бе успешно.",
   "Press Enter key or click here to search":"Appuyez sur la touche Entrée ou cliquez ici pour rechercher",
   "Click to clear":"Cliquez pour effacer",
-  "Search":"Rechercher...",
   "Click here to back":"Cliquez ici pour revenir",
   "Enter the form machine name":"Entrez le nom de la machine de formulaire",
   'Enter the form title':"Entrez le titre du formulaire",
@@ -185,6 +191,7 @@ export const RESOURCE_BUNDLES_FR = {
   "Loading...":"Chargement...",
   "Wizard":"sorcier",
   "Save Form":"Enregistrer le formulaire",
+  "Confirm":"Confirmer",
   "Cancel":"Annuler",
   "Please change the selected filters to view applications":"Veuillez modifier les filtres sélectionnés pour afficher les candidatures",
   "No submissions available for the selected date range":"Aucune soumission disponible pour la plage de dates sélectionnée",
@@ -208,12 +215,45 @@ export const RESOURCE_BUNDLES_FR = {
   "Form deleted successfully":"Form deleted successfully",
   "Form process failed":"Le processus de formulaire a échoué",
   "Form unpublishing Failed":"Échec de la dépublication du formulaire",
-  "All groups have access to the dashboard":"Tous les groupes ont accès au tableau de bord"
+  "All groups have access to the dashboard":"Tous les groupes ont accès au tableau de bord",
+  "Export PDF":"Exporter PDF",
+  "Something went wrong. Please try again!":"Quelque chose s'est mal passé. Veuillez réessayer!",
+  "No Dashboards Found":"Aucun tableau de bord trouvé",
+  "Processes":"Processus",
+  "Please select an existing workflow.":"Veuillez sélectionner un workflow existant.",
+  "Create New":"Créer un nouveau",
+  "Or create new workflow or import a workflow from a local directory.":"Ou créez un nouveau flux de travail ou importez un flux de travail à partir d'un répertoire local.",
+  "The operation couldn't be completed. Please try after sometime":"L'opération n'a pas pu être terminée. Veuillez essayer après un certain temps",
+  "Select...":"Sélectionner...",
+  "No Drafts Found":  "Aucun brouillon trouvé",
+  "Help":"Aider",
+  "Draft Id":"ID brouillon",
+  "Draft Name":"Nom provisoire",
+  "Link To Draft Submission":"Lien vers la soumission de brouillon",
+  "Drafts":"Brouillons",
+  "You can't submit this form until it is published":"Vous ne pouvez pas soumettre ce formulaire tant qu'il n'est pas publié",
+  "Form not published":"Formulaire non publié",
+  "Access Denied" : "Accès refusé",
+  "By default, the tenant key would be prefixed to form":"Par défaut, la clé du locataire serait préfixée pour former",
+  "go back":"retourner",
+  "No Applications Found":"Aucune application trouvée",
+  "Submission saved to draft.":"Soumission enregistrée comme brouillon.",
+  "Saved to draft":"Enregistré comme brouillon",
+  "Saving...":"Économie...",
+  "Unfinished applications will be saved to drafts.":"Les candidatures non terminées seront enregistrées dans les brouillons.",
+  "Resource":"Ressource",
+  "Error in creating form process mapper":"Erreur lors de la création du mappeur de processus de formulaire",
+  "Select the date":"Sélectionnez la date",
+  "Diagram Deployed":"Diagramme déployé",
+  "Deployment Failed":"Échec du déploiement",
+  "Process name(s) must not be empty":"Le(s) nom(s) de processus ne doivent pas être vides",
+  "URL copied":"URL copiée",
+  "Click Here to Copy":"Cliquez ici pour copier"
 
 
 
 
-  };
+};
   
 
   

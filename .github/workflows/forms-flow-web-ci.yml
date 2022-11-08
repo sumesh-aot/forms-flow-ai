@@ -6,10 +6,12 @@ on:
     branches:
       - develop
       - master
+      - release/**
   pull_request:
     branches:
       - develop
       - master
+      - release/**
     paths:
       - "forms-flow-web/**"
 
@@ -26,7 +28,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: "true"
 
-  linting:
+  Lint:
     needs: setup-job
     runs-on: ubuntu-20.04
 
@@ -43,10 +45,11 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-      # - name: Linting
-      #   run: |
-      #     npm run lint
-  unit-tests:
+      - name: Linting
+        run: |
+          npm run lint
+  Test:
+    if: Always()
     needs: setup-job
     runs-on: ubuntu-20.04
 
@@ -68,7 +71,8 @@ jobs:
         run: |
           npm test a
 
-  build-check:
+  Build:
+    if: always()
     needs: setup-job
     runs-on: ubuntu-20.04
 

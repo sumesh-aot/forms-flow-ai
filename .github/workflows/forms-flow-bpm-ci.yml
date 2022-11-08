@@ -1,4 +1,3 @@
-#Workflow name
 name: Forms Flow BPM CI
 on:
   workflow_dispatch:
@@ -6,12 +5,14 @@ on:
     branches:
       - develop
       - master
+      - release/**
   pull_request:
     branches:
       - develop
       - master
+      - release/**
     paths:
-      - "forms-flow-api/**"
+      - "forms-flow-bpm/**"
 
 defaults:
   run:
@@ -25,39 +26,32 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: "true"
-  tests:
+  Test:
+    if: always()
     needs: setup-job
     runs-on: ubuntu-20.04
-    name: Unit tests
+    name: Test
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: '17'
       - name: Cache Maven packages
         uses: actions/cache@v1
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom-docker.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Run Tests
-        run: mvn -B test --file pom-docker.xml
-  build:
-    needs: tests
+        run: mvn -B test --file pom.xml
+  Build:
+    if: always()
+    needs: setup-job
     runs-on: ubuntu-20.04
     name: Build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '11'
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom-docker.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build with Maven
-        run: mvn -B package -DskipTests --file pom-docker.xml
+      - name: Build
+        run: |
+          docker build . -t forms-flow-bpm

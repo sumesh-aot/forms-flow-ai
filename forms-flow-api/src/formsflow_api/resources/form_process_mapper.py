@@ -5,14 +5,20 @@ from http import HTTPStatus
 
 from flask import current_app, request
 from flask_restx import Namespace, Resource
+from formsflow_api_utils.exceptions import BusinessException
+from formsflow_api_utils.services.external import FormioService
+from formsflow_api_utils.utils import (
+    DESIGNER_GROUP,
+    auth,
+    cors_preflight,
+    profiletime,
+)
 
-from formsflow_api.exceptions import BusinessException
 from formsflow_api.schemas import (
     FormProcessMapperListRequestSchema,
     FormProcessMapperSchema,
 )
 from formsflow_api.services import ApplicationService, FormProcessMapperService
-from formsflow_api.utils import auth, cors_preflight, profiletime
 
 API = Namespace("Form", description="Form")
 
@@ -207,12 +213,13 @@ class FormResourceById(Resource):
                 )
             mapper_schema = FormProcessMapperSchema()
             dict_data = mapper_schema.load(application_json)
-            FormProcessMapperService.update_mapper(
+            mapper = FormProcessMapperService.update_mapper(
                 form_process_mapper_id=mapper_id, data=dict_data
             )
-
+            response = mapper_schema.dump(mapper)
+            response["taskVariable"] = json.loads(response["taskVariable"])
             return (
-                f"Updated FormProcessMapper ID {mapper_id} successfully",
+                response,
                 HTTPStatus.OK,
             )
         except PermissionError as err:
@@ -251,7 +258,10 @@ class FormResourceByFormId(Resource):
         """
         try:
             response = FormProcessMapperService.get_mapper_by_formid(form_id=form_id)
-            response["taskVariable"] = json.loads(response["taskVariable"])
+            task_variable = response.get("taskVariable")
+            response["taskVariable"] = (
+                json.loads(task_variable) if task_variable else None
+            )
             return (
                 response,
                 HTTPStatus.OK,
@@ -337,6 +347,38 @@ class FormResourceTaskVariablesbyApplicationId(Resource):
                 HTTPStatus.FORBIDDEN,
             )
             current_app.logger.warning(err)
+            return response, status
+        except BusinessException as err:
+            current_app.logger.warning(err.error)
+            return err.error, err.status_code
+
+
+@cors_preflight("POST,OPTIONS")
+@API.route("/form-create", methods=["POST", "OPTIONS"])
+class FormioFormResource(Resource):
+    """Resource for formio form creation."""
+
+    @staticmethod
+    @auth.require
+    @profiletime
+    def post():
+        """Formio form creation method."""
+        try:
+            data = request.get_json()
+            if auth.has_role([DESIGNER_GROUP]):
+                formio_service = FormioService()
+                form_io_token = formio_service.get_formio_access_token()
+                response, status = (
+                    formio_service.create_form(data, form_io_token),
+                    HTTPStatus.CREATED,
+                )
+            else:
+                response, status = (
+                    {
+                        "message": "Permission Denied",
+                    },
+                    HTTPStatus.FORBIDDEN,
+                )
             return response, status
         except BusinessException as err:
             current_app.logger.warning(err.error)

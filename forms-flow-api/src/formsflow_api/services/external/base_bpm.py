@@ -4,8 +4,7 @@ import json
 
 import requests
 from flask import current_app
-
-from formsflow_api.utils.logging import log_bpm_error
+from formsflow_api_utils.utils import HTTP_TIMEOUT, log_bpm_error
 
 
 class BaseBPMService:
@@ -15,9 +14,11 @@ class BaseBPMService:
     def get_request(cls, url, token):
         """Get HTTP request to BPM API with auth header."""
         headers = cls._get_headers_(token)
-        response = requests.get(url, headers=headers)
-
+        response = requests.get(url, headers=headers, timeout=HTTP_TIMEOUT)
         data = None
+        current_app.logger.debug(
+            "GET URL : %s, Response Code : %s", url, response.status_code
+        )
         if response.ok:
             data = json.loads(response.text)
         else:
@@ -31,12 +32,14 @@ class BaseBPMService:
         return data
 
     @classmethod
-    def post_request(cls, url, token, payload=None):
+    def post_request(cls, url, token, payload=None, tenant_key=None):
         """Post HTTP request to BPM API with auth header."""
-        headers = cls._get_headers_(token)
+        headers = cls._get_headers_(token, tenant_key)
         payload = json.dumps(payload)
         response = requests.post(url, data=payload, headers=headers, timeout=120)
-
+        current_app.logger.debug(
+            "POST URL : %s, Response Code : %s", url, response.status_code
+        )
         data = None
         if response.ok:
             if response.text:
@@ -54,12 +57,14 @@ class BaseBPMService:
         return data
 
     @classmethod
-    def _get_headers_(cls, token):
+    def _get_headers_(cls, token, tenant_key=None):
         """Generate headers."""
         bpm_token_api = current_app.config.get("BPM_TOKEN_API")
         bpm_client_id = current_app.config.get("BPM_CLIENT_ID")
         bpm_client_secret = current_app.config.get("BPM_CLIENT_SECRET")
         bpm_grant_type = current_app.config.get("BPM_GRANT_TYPE")
+        if current_app.config.get("MULTI_TENANCY_ENABLED") and tenant_key:
+            bpm_client_id = f"{tenant_key}-{bpm_client_id}"
 
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         payload = {
@@ -70,7 +75,9 @@ class BaseBPMService:
         if token:
             return {"Authorization": token, "content-type": "application/json"}
 
-        response = requests.post(bpm_token_api, headers=headers, data=payload)
+        response = requests.post(
+            bpm_token_api, headers=headers, data=payload, timeout=HTTP_TIMEOUT
+        )
         data = json.loads(response.text)
         return {
             "Authorization": "Bearer " + data["access_token"],

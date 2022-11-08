@@ -1,5 +1,10 @@
+/* eslint-disable max-len */
 export const RESOURCE_BUNDLES_ZH = {
-
+  "Please change the selected filters to view Forms":"请更改所选过滤器以查看表格",
+  "Search by form name":"按表格名称搜索",
+  "Click to search":"点击搜索",
+  "No submissions found":"未找到任何提交",
+  "No submission avaliable in the selected date. Please select another date range":"在所选日期内没有可用的提交。请选择其他日期范围",
   "Dashboards":"仪表板",
   "Form field":"表单域",
   "Enter Label":"输入标签",
@@ -23,6 +28,7 @@ export const RESOURCE_BUNDLES_ZH = {
   "Error while Submission.": "提交时出错。",
   "Submission cannot be done.": "无法提交。 ",
   "Are you sure you wish to delete the form": "您确定要删除表格吗",
+  "Are you sure you wish to delete the form?":"您确定要删除表格吗?",
   "Forms": "表格  ",
   "Edit": "编辑",
 "Text Field": "文本域",
@@ -149,10 +155,11 @@ export const RESOURCE_BUNDLES_ZH = {
   "Select All": "全选",
   "Created Date": "创建日期",
  "Modified Date": "修改日期",
-  "Files Upload Confirmation": "文件上传确认",
+  "File Upload Status": "文件上传状态",
   "Forms Completed": "完成的表格",
+  "Form Completed" : "表格完成",
   "No forms found": "没有找到表格",
-  "Powered by": "供电",
+  "Powered by ": "供电 ",
   "No Process Diagram found": "未找到流程图",
   "No applications found": "未找到任何应​​用程序",
   "Successfully Updated": "成功更新",
@@ -182,6 +189,7 @@ export const RESOURCE_BUNDLES_ZH = {
   "Loading...":"正在加载...",
   "Wizard":"向导",
   "Save Form":"保存表格",
+  "Confirm":"确认",
   "Cancel":"取消",
   "Please change the selected filters to view applications":"请更改所选过滤器以查看应用程序",
   "No submissions available for the selected date range":"所选日期范围内没有可用的提交",
@@ -205,16 +213,43 @@ export const RESOURCE_BUNDLES_ZH = {
   "Form deleted successfully":"表格删除成功",
   "Form process failed":"表单处理失败",
   "Form unpublishing Failed":"表单取消发布失败",
-  "All groups have access to the dashboard":"所有组都可以访问仪表板"
+  "All groups have access to the dashboard":"所有组都可以访问仪表板",
+  "Export PDF":"导出 PDF",
+  "Something went wrong. Please try again!":"出问题了。请再试一次！",
+  "No Dashboards Found":"未找到仪表板",
+  "Processes":"流程",
+  "Please select an existing workflow.":"请选择现有工作流程。",
+  "Create New":"创建新的",
+  "Or create new workflow or import a workflow from a local directory.":"或创建新工作流或从本地目录导入工作流。",
+  "The operation couldn't be completed. Please try after sometime":"操作无法完成。请稍后再试",
+  "Select...":"选择...",
+  "No Drafts Found":  "未找到草稿",
+  "Help":"帮助",
+  "Draft Id":"草稿 ID",
+  "Draft Name":"草稿名称",
+  "Link To Draft Submission":"链接到草稿提交",
+  "Drafts":"草稿",
+  "You can't submit this form until it is published":"在此表单发布之前，您无法提交此表单",
+  "Form not published":"表格未发布",
+  "Access Denied" : "拒绝访问",
+  "By default, the tenant key would be prefixed to form":"默认情况下，租户键的前缀为 form",
+  "go back":"回去",
+  "No Applications Found":"未找到任何应​​用程序",
+  "Submission saved to draft.":"提交已保存到草稿。",
+  "Saved to draft":"已保存到草稿",
+  "Saving...":"保存...",
+  "Unfinished applications will be saved to drafts.":"未完成的申请将被保存到草稿中。",
+  "Resource":"资源",
+  "Error in creating form process mapper":"创建表单流程映射器时出错",
+  "Select the date":"选择日期",
+  "Diagram Deployed":"已部署的图表",
+  "Deployment Failed":"部署失败",
+  "Process name(s) must not be empty":"进程名称不能为空",
+  "URL copied":"已复制网址",
+  "Click Here to Copy":"点击这里复制"
 
 
 
 
-
-
-
-
-
-
-}
+};
 

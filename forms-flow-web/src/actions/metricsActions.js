@@ -1,4 +1,4 @@
- /* istanbul ignore file */
+/* istanbul ignore file */
 import ACTION_CONSTANTS from "./actionConstants";
 
 export const setMetricsSubmissionCount = (data) => (dispatch) => {
@@ -7,7 +7,18 @@ export const setMetricsSubmissionCount = (data) => (dispatch) => {
     payload: data,
   });
 };
-
+export const setMetricsTotalItems = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.METRICS_SUBMISSIONS_COUNT,
+    payload: data,
+  });
+};
+export const setMetricsDateChange = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.METRICS_SUBMISSION_DATE,
+    payload: data,
+  }); 
+};
 export const setMetricsLoader = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.IS_METRICS_LOADING,
@@ -69,6 +80,20 @@ export const setMetricsSubmissionLimitChange = (data) => (dispatch) => {
 export const setMetricsSubmissionPageChange = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.METRICS_SUBMISSIONS_LIST_PAGE_CHANGE,
+    payload: data,
+  });
+};
+
+export const setMetricsDateRangeLoading = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.METRICS_DATE_RANGE_LOADING,
+    payload: data,
+  });
+};
+
+export const SetSubmissionStatusCountLoader = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.METRICS_SUBMISSION_STATUS_COUNT_LOADER,
     payload: data,
   });
 };

@@ -6,10 +6,12 @@ on:
     branches:
       - develop
       - master
+      - release/**
   pull_request:
     branches:
       - develop
       - master
+      - release/**
     paths:
       - "forms-flow-api/**"
 
@@ -26,7 +28,8 @@ jobs:
       - uses: actions/checkout@v2
       - run: "true"
 
-  linting:
+  Lint:
+    if: always()
     needs: setup-job
     runs-on: ubuntu-20.04
 
@@ -52,8 +55,10 @@ jobs:
         run: |
           flake8 src/formsflow_api tests
 
-  PyTest:
+  Test:
+    if: always()
     needs: setup-job
+    name: Test
     env:
       FLASK_ENV: "testing"
       DATABASE_URL_TEST: "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -67,12 +72,15 @@ jobs:
       JWT_OIDC_ISSUER: "http://localhost:8081/auth/realms/forms-flow-ai"
       JWT_OIDC_AUDIENCE: "forms-flow-web"
       JWT_OIDC_CACHING_ENABLED: "True"
-      BPM_API_BASE: http://localhost:8080/camunda
+      BPM_API_URL: http://localhost:8080/camunda
       BPM_CLIENT_SECRET: "demo"
       BPM_CLIENT_ID: "forms-flow-bpm"
       BPM_TOKEN_API: "http://localhost:8081/auth/realms/forms-flow-ai/protocol/openid-connect/token"
       INSIGHT_API_URL: http://localhost:8080/analytics
       INSIGHT_API_KEY: test
+      FORMIO_URL: http://localhost:8080/forms
+      FORMIO_ROOT_EMAIL: test@test.com
+      FORMIO_ROOT_PASSWORD: test
       SKIP_IN_CI: "True"
       USE_DOCKER_MOCK: "True"
 
@@ -103,15 +111,9 @@ jobs:
         id: test
         run: |
           make test
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v1
-      #   with:
-      #     file: ./forms-flow-api/coverage.xml
-      #     flags: formsflowapi
-      #     name: codecov-formsflow-api
-      #     fail_ci_if_error: true
-  build:
-    needs: PyTest
+  Build:
+    if: always()
+    needs: setup-job
     runs-on: ubuntu-20.04
     name: Build
     steps:

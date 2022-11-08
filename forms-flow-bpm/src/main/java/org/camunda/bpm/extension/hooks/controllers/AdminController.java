@@ -51,15 +51,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 
-import net.minidev.json.JSONArray;
+
 
 /**
  * Admin Controller.
  * This class assist with admin operations of formsflow.ai: Giving all authorized form details
  */
 @Controller
+@Deprecated // Refer AdminRestResource
 public class AdminController {
 
     private static final Logger LOGGER = Logger.getLogger(AdminController.class.getName());
@@ -82,6 +84,7 @@ public class AdminController {
 	private RepositoryService repositoryService;
 	
 
+	@Deprecated
     @GetMapping(value = "/engine-rest-ext/form/authorization", produces = MediaType.APPLICATION_JSON_VALUE)
     private @ResponseBody AuthorizationInfo getFormAuthorization() throws ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -154,6 +157,7 @@ public class AdminController {
 	 * @param dto
 	 * @throws ServletException
 	 */
+	@Deprecated
 	@RequestMapping(value = "/engine-rest-ext/tenant/authorization", method = RequestMethod.POST, produces = "application/json")
 	private @ResponseBody void createTenant(@RequestBody TenantAuthorizationDto dto) throws ServletException {
 		LOGGER.info("Creating authorizations for tenant");
@@ -191,6 +195,7 @@ public class AdminController {
 			createAuthorization(tenantKey, reviewerRole, Resources.TASK, "*");
 			createAuthorization(tenantKey, reviewerRole, Resources.TENANT, tenantKey);
 			createAuthorization(tenantKey, reviewerRole, Resources.FILTER, "*");
+			createAuthorization(tenantKey, reviewerRole, Resources.USER, "*");
 		}
 		LOGGER.info("Finished creating authorizations for tenant");
 
@@ -203,6 +208,7 @@ public class AdminController {
 	 * @param file
 	 * @throws ServletException
 	 */
+	@Deprecated
 	@RequestMapping(value = "/engine-rest-ext/tenant/{tenantKey}/deployment", method = RequestMethod.POST, produces = "application/json", consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE })
 	private @ResponseBody void createTenantDeployment(@PathVariable("tenantKey") String tenantKey,

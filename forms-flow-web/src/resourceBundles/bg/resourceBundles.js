@@ -1,5 +1,10 @@
+/* eslint-disable max-len */
 export const RESOURCE_BUNDLES_BG = {
- 
+    "Please change the selected filters to view Forms":"Моля, променете избраните филтри, за да видите формуляри",
+    "Search by form name":"Tŭrsene po ime na formulyara",
+    "Click to search":"Щракнете за търсене",
+    "No submissions found":"Няма намерени заявки",
+    "No submission avaliable in the selected date. Please select another date range":"Няма налично подаване на избраната дата. Моля, изберете друг период от време",
     "Dashboards":"Табла за управление",
     "Form field":"Поле за формуляр",
     "Enter Label":"Въведете етикет",
@@ -151,12 +156,13 @@ export const RESOURCE_BUNDLES_BG = {
     "Select All": "Избери всички",
     "Created Date": "Дата на създаване",
     "Modified Date": "Дата на промяна",
-    "Files Upload Confirmation": "Потвърждение за качване на файлове",
+    "File Upload Status": "Състояние на качване на файл",
     "Forms Completed": "Формулярите са попълнени",
+    "Form Completed" : "Формулярът е попълнен",
     "No forms found": "Няма намерени формуляри",
-    "Powered by": "Задвижвани от",
+    "Powered by ": "Задвижвани от ",
     "No Process Diagram found": "Не е намерена диаграма на процеса",
-    "No applications found": "No applications found",
+    "No applications found": "Няма намерени приложения",
     "Successfully Updated": "Актуализирано успешно",
     "Failed": "Се провали",
     "Press Enter key or click here to search": "Натиснете клавиша Enter или щракнете тук, за да търсите",
@@ -183,6 +189,7 @@ export const RESOURCE_BUNDLES_BG = {
     "Loading...":"Зареждане...",
     "Wizard":"Магьосник",
     "Save Form":"Запазване на формуляр",
+    "Confirm":"Потвърдете",
     "Cancel":"Отмяна",
     "Please change the selected filters to view applications":"Моля, променете избраните филтри, за да видите приложения",
     "No submissions available for the selected date range":"Няма налични заявки за избрания период от време",
@@ -200,24 +207,45 @@ export const RESOURCE_BUNDLES_BG = {
     "Application is submitted against":"Заявлението се подава срещу",
     ". Are you sure want to delete ?":". Наистина ли искате да изтриете?",
     "Are you sure you wish to delete the form ":"Сигурни ли сте, че искате да изтриете формуляра",
+    "Are you sure you wish to delete the form?":"Сигурни ли сте, че искате да изтриете формуляра?",
     "Save Changes":"Запазите промените",
     "Changing the form workflow will not affect the existing applications. It will only update in the newly created applications. Press Save Changes to continue or cancel the changes.":"Промяната на работния процес на формуляра няма да засегне съществуващите приложения. Той ще се актуализира само в новосъздадените приложения. Натиснете Запазване на промените, за да продължите или отмените промените.",
     "Form Workflow Association Saved.":"Асоциацията на работния поток на формуляра е запазена.",
     "Form deleted successfully":"Формулярът е изтрит успешно",
     "Form process failed":"Обработката на формуляра не бе успешно",
     "Form unpublishing Failed":"Прекратяването на публикуването на формуляра не бе успешно",
-    "All groups have access to the dashboard":"Всички групи имат достъп до таблото"
-  
-
-
-
-}
-
-
-
-
-
-
-
-
-
+    "All groups have access to the dashboard":"Всички групи имат достъп до таблото",
+    "Export PDF": "Експортиране на PDF",
+    "Something went wrong. Please try again!":"Нещо се обърка. Моля, опитайте отново!",
+    "No Dashboards Found":"Няма намерени табла за управление",
+    "Processes":"процеси",
+    "Please select an existing workflow.":"Моля, изберете съществуващ работен процес.",
+    "Create New":"Създай нов",
+    "Or create new workflow or import a workflow from a local directory.":"Или създайте нов работен поток или импортирайте работен поток от локална директория.",
+    "The operation couldn't be completed. Please try after sometime":"Операцията не можа да бъде завършена. Моля, опитайте след известно време",
+    "Select...":"Изберете...",
+    "No Drafts Found":  "Няма намерени чернови",
+    "Help":"Помогне",
+    "Draft Id":"Чернова на ID",
+    "Draft Name":"Име на черновата",
+    "Link To Draft Submission":"Връзка към изпращане на чернова",
+    "Drafts":"Чернови",
+    "You can't submit this form until it is published":"Не можете да изпратите този формуляр, докато не бъде публикуван",
+    "Form not published":"Формулярът не е публикуван",
+    "Access Denied" : "Отказан достъп",
+    "By default, the tenant key would be prefixed to form":"По подразбиране ключът на клиента ще има префикс за форма",
+    "go back":"Върни се",
+    "No Applications Found":"Няма намерени приложения",
+    "Submission saved to draft.":"Изпращането е запазено в чернова.",
+    "Saved to draft":"Запазено в чернова",
+    "Saving...":"Запазва се...",
+    "Unfinished applications will be saved to drafts.":"Незавършените приложения ще бъдат запазени в чернови.",
+    "Resource":"Ресурс",
+    "Error in creating form process mapper":"Грешка при създаването на картограф на процес на формуляр",
+    "Select the date":"Изберете датата",
+    "Diagram Deployed":"Разгърната диаграма",
+    "Deployment Failed":"Неуспешно внедряване",
+    "Process name(s) must not be empty":"Името(ата) на процесите не трябва да са празни",
+    "URL copied":"URL адресът е копиран",
+    "Click Here to Copy":"Щракнете тук, за да копирате"
+};

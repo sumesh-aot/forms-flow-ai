@@ -4,9 +4,17 @@ from http import HTTPStatus
 
 from flask import current_app, request
 from flask_restx import Namespace, Resource
+from formsflow_api_utils.exceptions import BusinessException
+from formsflow_api_utils.services.external import FormioService
+from formsflow_api_utils.utils import (
+    REVIEWER_GROUP,
+    auth,
+    cors_preflight,
+    get_form_and_submission_id_from_form_url,
+    profiletime,
+)
 from marshmallow.exceptions import ValidationError
 
-from formsflow_api.exceptions import BusinessException
 from formsflow_api.schemas import (
     ApplicationListReqSchema,
     ApplicationListRequestSchema,
@@ -14,12 +22,6 @@ from formsflow_api.schemas import (
     ApplicationUpdateSchema,
 )
 from formsflow_api.services import ApplicationService
-from formsflow_api.utils import (
-    REVIEWER_GROUP,
-    auth,
-    cors_preflight,
-    profiletime,
-)
 
 API = Namespace("Application", description="Application")
 
@@ -63,6 +65,7 @@ class ApplicationsResource(Resource):
                 (
                     application_schema_dump,
                     application_count,
+                    draft_count,
                 ) = ApplicationService.get_auth_applications_and_count(
                     created_from=created_from_date,
                     created_to=created_to_date,
@@ -82,6 +85,7 @@ class ApplicationsResource(Resource):
                 (
                     application_schema_dump,
                     application_count,
+                    draft_count,
                 ) = ApplicationService.get_all_applications_by_user(
                     page_no=page_no,
                     limit=limit,
@@ -96,14 +100,12 @@ class ApplicationsResource(Resource):
                     application_name=application_name,
                     application_status=application_status,
                 )
-            application_schema = ApplicationService.apply_custom_attributes(
-                application_schema_dump=application_schema_dump
-            )
             return (
                 (
                     {
-                        "applications": application_schema,
+                        "applications": application_schema_dump,
                         "totalCount": application_count,
+                        "draftCount": draft_count,
                         "limit": limit,
                         "pageNo": page_no,
                     }
@@ -159,13 +161,13 @@ class ApplicationResourceById(Resource):
                     token=request.headers["Authorization"],
                 )
                 return (
-                    ApplicationService.apply_custom_attributes(application_schema_dump),
+                    application_schema_dump,
                     status,
                 )
             application, status = ApplicationService.get_application_by_user(
                 application_id=application_id
             )
-            return (ApplicationService.apply_custom_attributes(application), status)
+            return (application, status)
         except PermissionError as err:
             response, status = (
                 {
@@ -192,6 +194,14 @@ class ApplicationResourceById(Resource):
         try:
             application_schema = ApplicationUpdateSchema()
             dict_data = application_schema.load(application_json)
+            form_url = dict_data.get("form_url", None)
+            if form_url:
+                (
+                    latest_form_id,
+                    submission_id,
+                ) = get_form_and_submission_id_from_form_url(form_url)
+                dict_data["latest_form_id"] = latest_form_id
+                dict_data["submission_id"] = submission_id
             ApplicationService.update_application(
                 application_id=application_id, data=dict_data
             )
@@ -242,21 +252,17 @@ class ApplicationResourceByFormId(Resource):
             limit = 0
 
         if auth.has_role(["formsflow-reviewer"]):
-            application_schema = ApplicationService.apply_custom_attributes(
-                ApplicationService.get_all_applications_form_id(
-                    form_id=form_id, page_no=page_no, limit=limit
-                )
+            application_schema = ApplicationService.get_all_applications_form_id(
+                form_id=form_id, page_no=page_no, limit=limit
             )
             application_count = ApplicationService.get_all_applications_form_id_count(
                 form_id=form_id
             )
         else:
-            application_schema = ApplicationService.apply_custom_attributes(
-                ApplicationService.get_all_applications_form_id_user(
-                    form_id=form_id,
-                    page_no=page_no,
-                    limit=limit,
-                )
+            application_schema = ApplicationService.get_all_applications_form_id_user(
+                form_id=form_id,
+                page_no=page_no,
+                limit=limit,
             )
             application_count = (
                 ApplicationService.get_all_applications_form_id_user_count(
@@ -295,12 +301,26 @@ class ApplicationResourcesByIds(Resource):
     @staticmethod
     @auth.require
     @profiletime
+    @API.doc(responses={
+        201: 'Application Created',
+        400: 'Validation Error'
+    })
     def post():
         """Post a new application using the request body.
 
         : formId:- Unique Id for the corresponding form
-        : submissionId:- Unique Id for the submitted form
         : formUrl:- Unique URL for the submitted application
+        : submissionId:- Unique Id for the submitted form
+        : webFormUrl:- Unique Web URL for the submitted application
+        e.g,
+        ```
+        {
+           "formId":"632208d9fbcab29c2ab1a097",
+           "submissionId":"63407583fbcab29c2ab1bed4",
+           "formUrl":"https://formsflow-forms/form/632208d9fbcab29c2ab1a097/submission/63407583fbcab29c2ab1bed4",
+           "webFormUrl":"https://formsflow-web/form/632208d9fbcab29c2ab1a097/submission/63407583fbcab29c2ab1bed4"
+        }
+        ```
         """
         application_json = request.get_json()
 
@@ -358,3 +378,86 @@ class ApplicationResourceByApplicationStatus(Resource):
             )
         except BusinessException as err:
             return err.error, err.status_code
+
+
+@cors_preflight("POST,OPTIONS")
+@API.route("/external/create", methods=["POST", "OPTIONS"])
+class ApplicationCreation(Resource):
+    """Resource for application creation."""
+
+    @staticmethod
+    @auth.require
+    @profiletime
+    @API.doc(responses={
+        201: 'Application Created',
+        400: 'Validation Error'
+    })
+    def post():
+        """Post a new application using the request body.
+
+        : data: form submission data as a dict as in form submission data.
+        : formId:- Unique Id for the corresponding form
+        e.g,
+        ```
+        {
+            "formId" : "632208d9fbcab29c2ab1a097",
+            "data" : {
+                "firstName" : "John",
+                "lastName" : "Doe",
+                "contact": {
+                    "addressLine1": "1234 Street",
+                    "email" : "john.doe@example.com"
+                    }
+                }
+        }
+        ```
+        """
+        formio_url = current_app.config.get("FORMIO_URL")
+        web_url = current_app.config.get("WEB_BASE_URL")
+        application_json = request.get_json()
+        data = request.get_json()
+        try:
+            application_schema = ApplicationSchema()
+            application_data = application_schema.load(application_json)
+            formio_service = FormioService()
+            form_io_token = formio_service.get_formio_access_token()
+            formio_data = formio_service.post_submission(data, form_io_token)
+            application_data["submission_id"] = formio_data["_id"]
+            application_data[
+                "form_url"
+            ] = f"{formio_url}/form/{application_data['form_id']}/submission/{formio_data['_id']}"
+            application_data[
+                "web_form_url"
+            ] = f"{web_url}/form/{application_data['form_id']}/submission/{formio_data['_id']}"
+            application, status = ApplicationService.create_application(
+                data=application_data, token=request.headers["Authorization"]
+            )
+            response = application_schema.dump(application)
+            return response, status
+        except PermissionError as err:
+            response, status = (
+                {
+                    "type": "Permission Denied",
+                    "message": f"Access to formId-{application_data['form_id']} is prohibited",
+                },
+                HTTPStatus.FORBIDDEN,
+            )
+            current_app.logger.warning(response)
+            current_app.logger.warning(err)
+            return response, status
+        except KeyError as err:
+            response, status = {
+                "type": "Bad request error",
+                "message": "Invalid application request passed",
+            }, HTTPStatus.BAD_REQUEST
+            current_app.logger.warning(response)
+            current_app.logger.warning(err)
+            return response, status
+        except BaseException as application_err:  # pylint: disable=broad-except
+            response, status = {
+                "type": "Bad request error",
+                "message": "Invalid application request passed",
+            }, HTTPStatus.BAD_REQUEST
+            current_app.logger.warning(response)
+            current_app.logger.warning(application_err)
+            return response, status

@@ -3,9 +3,9 @@ import json
 
 import requests
 from flask import current_app
-
-from formsflow_api.utils import (
+from formsflow_api_utils.utils import (
     FORMSFLOW_ROLES,
+    HTTP_TIMEOUT,
     KEYCLOAK_DASHBOARD_BASE_GROUP,
     UserContext,
     profiletime,
@@ -30,7 +30,9 @@ class KeycloakAdminAPIService:
             "grant_type": bpm_grant_type,
         }
 
-        response = requests.post(bpm_token_api, headers=headers, data=payload)
+        response = requests.post(
+            bpm_token_api, headers=headers, data=payload, timeout=HTTP_TIMEOUT
+        )
         data = json.loads(response.text)
         assert data["access_token"] is not None
         self.session.headers.update(
@@ -52,6 +54,8 @@ class KeycloakAdminAPIService:
         """
         url = f"{self.base_url}/{url_path}"
         response = self.session.request("GET", url)
+        current_app.logger.debug(f"keycloak Admin API get request URL: {url}")
+        current_app.logger.debug(f"Keycloak response: {response.json()}")
         response.raise_for_status()
 
         if response.ok:
@@ -86,12 +90,6 @@ class KeycloakAdminAPIService:
         for group in group_list_response:
             if group["name"] == KEYCLOAK_DASHBOARD_BASE_GROUP:
                 dashboard_group_list = list(group["subGroups"])
-                for dashboard_group in dashboard_group_list:
-                    dashboard_group["dashboards"] = (
-                        self.get_request(url_path=f"groups/{dashboard_group['id']}")
-                        .get("attributes")
-                        .get("dashboards")
-                    )
         return dashboard_group_list
 
     def get_analytics_roles(self, page_no: int, limit: int):
@@ -111,13 +109,7 @@ class KeycloakAdminAPIService:
         current_app.logger.debug("Client roles %s", roles)
         for client_role in roles:
             if client_role["name"] not in FORMSFLOW_ROLES:
-                client_role["dashboards"] = (
-                    self.get_request(
-                        url_path=f"roles-by-id/{client_role['id']}?client={client_id}"
-                    )
-                    .get("attributes")
-                    .get("dashboards")
-                )
+                client_role["path"] = client_role["name"]
                 dashboard_roles_list.append(client_role)
         current_app.logger.debug("dashboard_roles_list %s", dashboard_roles_list)
         return dashboard_roles_list
@@ -155,6 +147,9 @@ class KeycloakAdminAPIService:
                 url,
                 data=json.dumps(data),
             )
+            current_app.logger.debug(f"keycloak Admin API PUT request URL: {url}")
+            current_app.logger.debug(f"Keycloak Admin PUT API payload {data}")
+            current_app.logger.debug(f"Keycloak response: {response}")
         except Exception as err_code:
             raise f"Request to Keycloak Admin APIs failed., {err_code}"
         if response.status_code == 204:

@@ -2,7 +2,7 @@
 
 ![React](https://img.shields.io/badge/React-17.0.2-blue)
 
-**formsflow.ai** delivers progressive web application with React version `17.0.2` and `create-react-app`. Also currently uses  [form.io](https://github.com/formio/formio) version `2.3.0`.
+**formsflow.ai** delivers progressive web application with React version `17.0.2` and `create-react-app`. Also currently uses  [form.io](https://github.com/formio/formio) version `2.4.1`.
 
 A React library for rendering out forms based on the form.io platform.
 
@@ -50,10 +50,10 @@ is mentioned on the [link](../forms-flow-idm/keycloak/README.md#create-forms-flo
 
  Variable name | Meaning | Possible values | Default value |
  --- | --- | --- | ---
- `NODE_ENV`| Define project level configuration | `development, test, production` | `development`
+ `NODE_ENV`| Define project level configuration | `development, test, production` | `production`
  `FORMIO_DEFAULT_PROJECT_URL`:triangular_flag_on_post:|The URL of the form.io server||`http://{your-ip-address}:3001`
  `FORMSFLOW_API_URL`:triangular_flag_on_post:|formsflow Rest API URL||`http://{your-ip-address}:5000/api`
- `CAMUNDA_API_URL`:triangular_flag_on_post:|Camunda Rest API URL||`http://{your-ip-address}:8000/camunda`
+ `BPM_API_URL`:triangular_flag_on_post:|Camunda Rest API URL||`http://{your-ip-address}:8000/camunda`
  `KEYCLOAK_URL`:triangular_flag_on_post:| URL to your Keycloak server || `http://{your-ip-address}:8080`
  `KEYCLOAK_URL_REALM`|	The Keycloak realm to use|eg. forms-flow-ai | `forms-flow-ai`
  `KEYCLOAK_WEB_CLIENTID`|Your Keycloak Client ID within the realm| eg. forms-flow-web | `forms-flow-web`
@@ -62,22 +62,18 @@ is mentioned on the [link](../forms-flow-idm/keycloak/README.md#create-forms-flo
  `WEB_BASE_CUSTOM_URL`|Clients can use WEB_BASE_CUSTOM_URL env variable to provide their custom URL |
  `USER_ACCESS_PERMISSIONS`| JSON formatted permissions to enable / disable few access on user login.|| `{"accessAllowApplications":false,"accessAllowSubmissions":false}`
  |`FORMIO_JWT_SECRET`|forms-flow-forms jwt secret| |`--- change me now ---`
+`MULTI_TENANCY_ENABLED`|Multi tenancy enabled flag for the environment|true/false | false
+` DRAFT_ENABLED`|Enable draft feature|true/false
+`DRAFT_POLLING_RATE`|Control draft timing||15000
+`EXPORT_PDF_ENABLED`|Manage export to pdf feature|true/false
+`PUBLIC_WORKFLOW_ENABLED`|Enable creating workflow for all tenants
+`DOCUMENT_SERVICE_URL`|Formsflow document service api url||`http://{your-ip-address}:{port}`
+`MT_ADMIN_BASE_URL`|Multitenancy admin url||`http://{your-ip-address}:5010/api`
+`MT_ADMIN_BASE_URL_VERSION=v1`|Version of multitenancy admin|v1
+
 
 * NOTE - While configuring USER_ACCESS_PERMISSIONS the accessAllowApplications will hide / show application tab, the same way accessAllowSubmissions does for viewSubmission button. To enable this feature you need to add access-allow-applications, access-allow-submissions with the respective user group in keycloak.
 
-* [STEP 1](): Getting **ROLE_ID** and **RESOURCE_ID** are mandatory for role based access. To generate ID go to ["Formsflow-forms user/role API"](../forms-flow-forms/README.md#formsflow-forms-api-requesting) and follow the steps.
-* [STEP 2](): Modify the environment variables using the values from step 1.
-
-Variable name | Meaning | Possible values | Default value |
---- | --- | --- | ---
-`CLIENT_ROLE`|	The role name used for client users|| `formsflow-client`
-`CLIENT_ROLE_ID`:triangular_flag_on_post:|forms-flow-forms client role Id|eg. 10121d8f7fadb18402a4c|`must get the client role Id value from Prerequisites step 1 above.`)
-`REVIEWER_ROLE`|The role name used for reviewer users||`formsflow-reviewer`
-`REVIEWER_ROLE_ID`:triangular_flag_on_post:|forms-flow-forms reviewer role Id|eg. 5ee10121d8f7fa03b3402a4d|`must get the reviewer role Id value from Prerequisites step 1 above..`
-`DESIGNER_ROLE`|The role name used for designer users||`formsflow-designer`
-`DESIGNER_ROLE_ID`:triangular_flag_on_post:|forms-flow-forms administrator role Id|eg. 5ee090afee045f1597609cae|`must get the administrator role Id value from Prerequisites step 1 above..`
-`ANONYMOUS_ID`|forms-flow-forms anonymous role Id|eg. 5ee090b0ee045f28ad609cb0|`must get the anonymous role Id value from Prerequisites step 1 above..`
-`USER_RESOURCE_ID`:triangular_flag_on_post:|User forms form-Id|eg. 5ee090b0ee045f51c5609cb1|`must get the value from the step 1 above..`
 
 
 ### Running the application
@@ -117,17 +113,8 @@ Variable name | Meaning | Possible values | Default value |
 
 ### Internationalization
   * Default language 'English' can be changed to other languages according to the   user.
-  * The languages currently provided are `Chinese,Portuguese,French and Bulgarian`.
-  * User can add more languages by following the steps :
-   1. Create a folder at *forms-flow-web/src/resourceBundles* with folder name as the abbrevation of the required language.
-   2. Create a file named resourceBundles.js inside the folder.
-   3. Copy the key-value pairs from *resourceBundles.js* file inside *en* folder and paste it to the new file.
-   4. Translate the value of the keys to the required language using google translator and paste the values to the same file
-   5. Import the same file to *forms-flow-web/src/resourceBundles/i18n.js* like rest of the languages.
-   6. You can add the button component at *forms-flow-web/src/containers/NavBar.jsx* by simply copying the dropdown menu and providing language abbrevation,name and language abbrevation to the array *langarr* inside the samw file. .
-   7. You should add content of new trnslation file to *forms-flow-web/src/resourceBundles/formio_resourceBundles.js* also.
-   8. Open forms-flow-api/src/formsflow_api/utils/translations/translations.py , copy any set of translations ,translate the values and paste it back to the file with required language key.
-   8. Login to **http://localhost:3000/** to check your updations.
+  * The languages currently provided are `Chinese,Portuguese,French,German and Bulgarian`.
+  * User can add more languages by following the steps mentioned [here](https://aot-technologies.github.io/forms-flow-ai-doc/#language)
   
 ## forms-flow-web Events
  > This section elaborates events used in forms-flow-web.

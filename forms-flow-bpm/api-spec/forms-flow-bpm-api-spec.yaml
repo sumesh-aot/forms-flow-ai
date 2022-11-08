@@ -12,6 +12,30 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+  schemas:
+    TenantAuthorization:
+      title: TenantAuthorization
+      type: object
+      properties:
+        tenantKey:
+          type: string
+        adminRoles:
+          type: array
+          items:
+            type: string
+        designerRoles:
+          type: array
+          items:
+            type: string
+        clientRoles:
+          type: array
+          items:
+            type: string
+        reviewerRoles:
+          type: array
+          items:
+            type: string
+      description: Tenant authorization model
 security:
   - bearerAuth: []
 tags:
@@ -27,7 +51,7 @@ tags:
     description: Update Log Level
   - name: Authorization check
 paths:
-  /engine-rest/filter/create:
+  /engine-rest-ext/v1/filter/create:
     post:
       tags:
         - Filter
@@ -89,7 +113,7 @@ paths:
               examples:
                 example-1:
                   value: {}
-  /engine-rest/filter:
+  /engine-rest-ext/v1/filter:
     get:
       tags:
         - Filter
@@ -136,7 +160,7 @@ paths:
             type: string
           in: query
           name: itemCount
-  /engine-rest/filter/count:
+  /engine-rest-ext/v1/filter/count:
     get:
       tags:
         - Filter
@@ -158,7 +182,7 @@ paths:
               examples:
                 example-1:
                   value: {}
-  '/engine-rest/filter/{filter_id}':
+  '/engine-rest-ext/v1/filter/{filter_id}':
     delete:
       tags:
         - Filter
@@ -178,7 +202,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /engine-rest/deployment/create:
+  /engine-rest-ext/v1/deployment/create:
     post:
       tags:
         - Process
@@ -234,7 +258,7 @@ paths:
               example:
                 links:
                   - method: GET
-                    href: 'http://localhost:8000/camunda/engine-rest/deployment/16cee73b-19c6-11ec-9f26-0242ac170003'
+                    href: 'http://localhost:8000/camunda/engine-rest-ext/v1/deployment/16cee73b-19c6-11ec-9f26-0242ac170003'
                     rel: self
                 id: 16cee73b-19c6-11ec-9f26-0242ac170003
                 name: Payment check
@@ -260,7 +284,7 @@ paths:
                 deployedCaseDefinitions: null
                 deployedDecisionDefinitions: null
                 deployedDecisionRequirementsDefinitions: null
-  /engine-rest/process-instance:
+  /engine-rest-ext/v1/process-instance:
     get:
       tags:
         - Process
@@ -555,7 +579,7 @@ paths:
                   ended: false
                   suspended: false
                   tenantId: null
-  /engine-rest/process-definition:
+  /engine-rest-ext/v1/process-definition:
     get:
       tags:
         - Process
@@ -716,7 +740,7 @@ paths:
                       versionTag: '1'
                       historyTimeToLive: null
                       startableInTasklist: true
-  /engine-rest/process-definition/key/onestepapproval/start:
+  /engine-rest-ext/v1/process-definition/key/onestepapproval/start:
     post:
       tags:
         - Process
@@ -752,7 +776,7 @@ paths:
                         {
                             "method": "GET",
                             "href": "
-                http: //localhost:8000/camunda/engine-rest/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
+                http: //localhost:8000/camunda/engine-rest-ext/v1/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
                         }
                     ],
                     "id": "648c9e74-cc5b-11ec-8f27-0242ac180003",
@@ -768,7 +792,7 @@ paths:
                 example-1:
                   value: {}
     parameters: []
-  /engine-rest/process-definition/key/Defaultflow/start:
+  /engine-rest-ext/v1/process-definition/key/Defaultflow/start:
     post:
       tags:
         - Process
@@ -804,7 +828,7 @@ paths:
                         {
                             "method": "GET",
                             "href": "
-                http: //localhost:8000/camunda/engine-rest/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
+                http: //localhost:8000/camunda/engine-rest-ext/v1/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
                         }
                     ],
                     "id": "648c9e74-cc5b-11ec-8f27-0242ac180003",
@@ -821,7 +845,7 @@ paths:
                   value:
                     id: test
     parameters: []
-  /engine-rest/process-definition/key/onestepapproval/tenant-id/test-tenant/start:
+  /engine-rest-ext/v1/process-definition/key/onestepapproval/start?tenantId=test-tenant:
     post:
       tags:
         - Process
@@ -857,7 +881,7 @@ paths:
                         {
                             "method": "GET",
                             "href": "
-                http: //localhost:8000/camunda/engine-rest/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
+                http: //localhost:8000/camunda/engine-rest-ext/v1/process-instance/648c9e74-cc5b-11ec-8f27-0242ac180003", "rel" : "self"
                         }
                     ],
                     "id": "648c9e74-cc5b-11ec-8f27-0242ac180003",
@@ -872,7 +896,7 @@ paths:
                 example-1:
                   value: {}
     parameters: []
-  /engine-rest/authorization/create:
+  /engine-rest-ext/v1/authorization/create:
     post:
       tags:
         - Permissions
@@ -929,7 +953,7 @@ paths:
                 resourceId: '*'
                 removalTime: null
                 rootProcessInstanceId: null
-  /engine-rest/authorization:
+  /engine-rest-ext/v1/authorization:
     get:
       tags:
         - Permissions
@@ -1009,7 +1033,7 @@ paths:
                   resourceId: '*'
                   removalTime: null
                   rootProcessInstanceId: null
-  '/engine-rest/authorization/{authorizationId}':
+  '/engine-rest-ext/v1/authorization/{authorizationId}':
     delete:
       tags:
         - Permissions
@@ -1029,7 +1053,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /engine-rest/task/create:
+  /engine-rest-ext/v1/task/create:
     post:
       tags:
         - Task
@@ -1046,7 +1070,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /engine-rest/task:
+  /engine-rest-ext/v1/task:
     get:
       tags:
         - Task
@@ -1588,7 +1612,7 @@ paths:
                   suspended: false
                   formKey: null
                   tenantId: null
-  '/engine-rest/task/{id}':
+  '/engine-rest-ext/v1/task/{id}':
     get:
       tags:
         - Task
@@ -1608,7 +1632,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  '/engine-rest/task/{taskId}/claim':
+  '/engine-rest-ext/v1/task/{taskId}/claim':
     post:
       tags:
         - Task
@@ -1635,7 +1659,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  '/engine-rest/task/{taskId}/unclaim':
+  '/engine-rest-ext/v1/task/{taskId}/unclaim':
     post:
       tags:
         - Task
@@ -1674,7 +1698,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /engine-rest-ext/form/authorization:
+  /engine-rest-ext/v1/admin/form/authorization:
     get:
       tags:
         - Authorization check
@@ -1715,3 +1739,32 @@ paths:
                     authorizationList:
                       - resourceId: ''
     parameters: []
+  /engine-rest-ext/v1/admin/tenant/authorization:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-engine-rest-ext-tenant-authorization
+    post:
+      summary: ''
+      operationId: post-engine-rest-ext-tenant-authorization
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantAuthorization'
+            examples:
+              example-1:
+                value:
+                  tenantKey: string
+                  adminRoles:
+                    - camunda-admin
+                  designerRoles:
+                    - formsflow-designer
+                  clientRoles:
+                    - formsflow-client
+                  reviewerRoles:
+                    - formsflow-reviewer

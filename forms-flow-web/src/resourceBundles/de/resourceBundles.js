@@ -1,5 +1,10 @@
+/* eslint-disable max-len */
 export const RESOURCE_BUNDLES_DE = {
-
+  "Please change the selected filters to view Forms":"Bitte ändern Sie die ausgewählten Filter, um Formulare anzuzeigen",
+  "Search by form name":"Suche nach Formularnamen",
+  "Click to search":"Klicken Sie, um zu suchen",
+  "No submissions found":"Keine Einreichungen gefunden",
+  "No submission avaliable in the selected date. Please select another date range":"Für das ausgewählte Datum ist keine Einreichung verfügbar. Bitte wählen Sie einen anderen Zeitraum aus",
   "Form field":"Formularfeld",
   "Enter Label":"Bezeichnung eingeben",
   "Select form field":"Formularfeld auswählen",
@@ -27,7 +32,8 @@ export const RESOURCE_BUNDLES_DE = {
   "Message": "Bitte beheben Sie die Fehler, bevor Sie sie erneut senden.",
   "Submission cannot be done.": "Eine Abgabe ist nicht möglich.",
   "No Process Diagram found": "Kein Prozessdiagramm gefunden",
-  "Are you sure you wish to delete the form": "Möchten Sie das Formular wirklich löschen?",
+  "Are you sure you wish to delete the form": "Möchten Sie das Formular wirklich löschen",
+  "Are you sure you wish to delete the form?":"Möchten Sie das Formular wirklich löschen? ",
   "Edit": "Bearbeiten",
   "Do you want to associate form with a workflow ?": "Möchten Sie ein Formular mit einem Workflow verknüpfen?",
   "Yes": "Jawohl",
@@ -156,10 +162,11 @@ export const RESOURCE_BUNDLES_DE = {
   "Select All": "Wählen Sie Alle",
   "Created Date": "Erstellungsdatum",
   "Modified Date": "Geändertes Datum",
-  "Files Upload Confirmation": "Bestätigung zum Hochladen von Dateien",
+  "File Upload Status": "Datei-Upload-Status",
   "Forms Completed": "Formulare ausgefüllt",
+  "Form Completed" : "Formular ausgefüllt",
   "No forms found": "Keine Formulare gefunden",
-  "Powered by": "Bereitgestellt von",
+  "Powered by ": "Bereitgestellt von ",
   "Press Enter key or click here to search": "Drücken Sie die Eingabetaste oder klicken Sie hier, um zu suchen",
   "Click to clear": "Zum Löschen klicken",
   "Search...": "Suche...",
@@ -185,6 +192,7 @@ export const RESOURCE_BUNDLES_DE = {
   "Please fix the errors before submitting again.":"Bitte beheben Sie die Fehler, bevor Sie sie erneut senden.",
   "Loading...":"Wird geladen...",
   "Save Form":"Formular speichern",
+  "Confirm":"Bestätigen",
   "Cancel":"Stornieren",
   "Please change the selected filters to view applications":"Wijzig de geselecteerde filters om applicaties te bekijken",
   "No submissions available for the selected date range":"Für den ausgewählten Zeitraum sind keine Einreichungen verfügbar",
@@ -208,12 +216,41 @@ export const RESOURCE_BUNDLES_DE = {
   "Form deleted successfully":"Form deleted successfully",
   "Form process failed":"Formularprozess fehlgeschlagen",
   "Form unpublishing Failed":"Das Aufheben der Veröffentlichung des Formulars ist fehlgeschlagen",
-  "All groups have access to the dashboard":"Alle Gruppen haben Zugriff auf das Dashboard"
+  "All groups have access to the dashboard":"Alle Gruppen haben Zugriff auf das Dashboard",
+  "Export PDF":"PDF exportieren",
+  "Something went wrong. Please try again!":"Etwas ist schief gelaufen. Bitte versuche es erneut!",
+  "No Dashboards Found":"Keine Dashboards gefunden",
+  "Processes":"Prozesse",
+  "Please select an existing workflow.":"Bitte wählen Sie einen bestehenden Workflow aus.",
+  "Create New":"Erstelle neu",
+  "Or create new workflow or import a workflow from a local directory.":"Oder erstellen Sie einen neuen Workflow oder importieren Sie einen Workflow aus einem lokalen Verzeichnis.",
+  "The operation couldn't be completed. Please try after sometime":"Der Vorgang konnte nicht abgeschlossen werden. Bitte versuchen Sie es nach einiger Zeit erneut",
+  "Select...":"Auswählen...",
+  "No Drafts Found":  "Keine Entwürfe gefunden",
+  "Help":"Hilfe",
+  "Draft Id":"Entwurfs-ID",
+  "Draft Name":"Entwurfsname",
+  "Link To Draft Submission":"Link zur Entwurfsübermittlung",
+  "Drafts":"Entwürfe",
+  "You can't submit this form until it is published":"Sie können dieses Formular erst absenden, wenn es veröffentlicht wurde",
+  "Form not published":"Formular nicht veröffentlicht",
+  "Access Denied" : "Zugriff abgelehnt",
+  "By default, the tenant key would be prefixed to form":"Standardmäßig wird dem Mandantenschlüssel form vorangestellt",
+  "go back":"geh zurück",
+  "No Applications Found":"Keine Anwendungen gefunden",
+  "Submission saved to draft.":"Übermittlung als Entwurf gespeichert.",
+  "Saved to draft":"Als Entwurf gespeichert",
+  "Saving...":"Sparen...",
+  "Unfinished applications will be saved to drafts.":"Unfertige Bewerbungen werden als Entwürfe gespeichert.",
+  "Resource":"Ressource",
+  "Error in creating form process mapper":"Fehler beim Erstellen des Formularprozess-Mappers",
+  "Select the date":"Wählen Sie das Datum aus",
+  "Diagram Deployed":"Diagramm bereitgestellt",
+  "Deployment Failed":"Bereitstellung fehlgeschlagen",
+  "Process name(s) must not be empty":"Prozessname(n) dürfen nicht leer sein",
+  "URL copied":"URL kopiert",
+  "Click Here to Copy":"Klicken Sie hier, um zu kopieren"
 
 
 
-
-
-
-
-}
+};
