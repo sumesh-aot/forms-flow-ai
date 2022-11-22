@@ -59,7 +59,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'forms-flow-bpm'
+          image-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
