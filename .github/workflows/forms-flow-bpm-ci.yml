@@ -6,6 +6,7 @@ on:
       - develop
       - master
       - release/**
+      - trivy
   pull_request:
     branches:
       - develop
