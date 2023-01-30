@@ -29,3 +29,5 @@ hs_err_pid*
 target/
 /.springBeans
 .env
+/.apt_generated/
+/.apt_generated_tests/
