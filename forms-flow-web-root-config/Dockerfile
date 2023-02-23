@@ -32,6 +32,6 @@ WORKDIR /usr/share/nginx/html/config
 
 COPY *.env .
 RUN apk add --no-cache bash
-RUN chmod +x env.sh
+RUN chmod +x ./env.sh
 
-CMD ["/bin/bash", "-c", "/usr/share/nginx/html/config/env.sh && nginx -g \"daemon off;\""]
+CMD ["/bin/bash", "-c", "env.sh && nginx -g \"daemon off;\""]
