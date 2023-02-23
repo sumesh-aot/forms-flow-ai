@@ -34,4 +34,4 @@ COPY *.env .
 RUN apk add --no-cache bash
 RUN chmod +x ./env.sh
 
-CMD ["/bin/bash", "-c", "env.sh && nginx -g \"daemon off;\""]
+CMD ["/bin/bash", "-c", "./env.sh && nginx -g \"daemon off;\""]
