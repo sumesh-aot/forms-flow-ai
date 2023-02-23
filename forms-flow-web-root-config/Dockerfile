@@ -25,7 +25,7 @@ FROM nginx:1.15.2-alpine as production-stage
 
 RUN mkdir /app
 COPY --from=build-stage /forms-flow-web-root-config/app/dist /usr/share/nginx/html
-COPY --from=build-stage /forms-flow-web-root-config/app/env.sh /usr/share/nginx/html/config
+COPY --from=build-stage /forms-flow-web-root-config/app/env.sh /usr/share/nginx/html/config/env.sh
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8080:8080
 WORKDIR /usr/share/nginx/html/config
