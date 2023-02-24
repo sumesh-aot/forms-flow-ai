@@ -30,9 +30,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8080:8080
 WORKDIR /usr/share/nginx/html/config
 
-COPY *.env .
-COPY /forms-flow-web-root-config/app/env.sh ./env.sh
-
+# COPY *.env .
 RUN apk add --no-cache bash
 RUN chmod +x ./env.sh
 
