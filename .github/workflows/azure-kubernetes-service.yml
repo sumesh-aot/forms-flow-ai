@@ -9,7 +9,7 @@ defaults:
 
 jobs:
   deploy-to-qa:
-    if: github.repository == 'AOT-Technologies/forms-flow-ai'
+#    if: github.repository == 'AOT-Technologies/forms-flow-ai'
     runs-on: ubuntu-latest
     environment: 'qa'
     permissions:
