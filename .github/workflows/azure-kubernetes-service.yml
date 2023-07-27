@@ -16,6 +16,9 @@ jobs:
       packages: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Add this step to check out the repository
+
       - name: Set version
         if: ${{ github.ref != 'refs/heads/master' }}
         working-directory: .
