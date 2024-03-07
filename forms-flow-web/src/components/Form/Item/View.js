@@ -31,7 +31,7 @@ import {
 } from "../../../actions/formActions";
 import SubmissionError from "../../../containers/SubmissionError";
 import { publicApplicationStatus } from "../../../apiManager/services/applicationServices";
-import LoadingOverlay from "react-loading-overlay";
+import LoadingOverlay from "react-loading-overlay-ts";
 import { CUSTOM_EVENT_TYPE } from "../../ServiceFlow/constants/customEventTypes";
 import { toast } from "react-toastify";
 import { setFormSubmitted } from "../../../actions/formActions";
@@ -182,7 +182,7 @@ const View = React.memo((props) => {
    * Compares the current form data and last saved data
    * Draft is updated only if the form is updated from the last saved form data.
    */
-  const saveDraft = (payload, exitType = exitType) => {
+  const saveDraft = (payload, exitType) => {
     if (exitType === "SUBMIT") return;
     let dataChanged = !isEqual(payload.data, lastUpdatedDraft.data);
     if (draftSubmissionId && isDraftCreated) {
@@ -269,6 +269,8 @@ const View = React.memo((props) => {
             dispatch(getApplicationCount(data.id));
             setFormStatus(data.status);
             dispatch(setFormStatusLoading(false));
+          }else{
+            dispatch(setFormStatusLoading(false));
           }
         })
       );
@@ -335,12 +337,12 @@ const View = React.memo((props) => {
           (publicFormStatus?.anonymous === true &&
             publicFormStatus?.status === "active")) && (
           <>
-            <span className="pr-2  mr-2 d-flex justify-content-end align-items-center">
+            <span className="pe-2  me-2 d-flex justify-content-end align-items-center">
               {!notified && (
                 <span className="text-primary">
-                  <i className="fa fa-info-circle mr-2" aria-hidden="true"></i>
+                  <i className="fa fa-info-circle me-2" aria-hidden="true"></i>
                   {t(
-                    "Unfinished applications will be saved to Applications/Drafts."
+                    "Unfinished submissions will be saved to Submissions/Drafts."
                   )}
                 </span>
               )}
@@ -349,7 +351,7 @@ const View = React.memo((props) => {
                 <SavingLoading
                   text={
                     draftSaved
-                      ? t("Saved to Applications/Drafts")
+                      ? t("Saved to Submissions/Drafts")
                       : t("Saving...")
                   }
                   saved={draftSaved}
@@ -366,15 +368,19 @@ const View = React.memo((props) => {
             onConfirm={props.onConfirm}
           ></SubmissionError>
           {isAuthenticated ? (
-            <Link title="go back" to={`${redirectUrl}form`}>
-              <i className="fa fa-chevron-left fa-lg" />
+            <Link
+              title={t("Back to Form List")}
+              to={`${redirectUrl}form`}
+              data-testid="back-to-form-list"
+            >
+              <i className="fa fa-chevron-left fa-lg me-2" />
             </Link>
           ) : null}
 
           {form.title ? (
-            <h3 className="ml-3 text-truncate" style={{height :"45px"}}>
+            <h3 className="ms-3 text-truncate form-title">
               <span className="task-head-details">
-                <i className="fa fa-wpforms" aria-hidden="true" /> &nbsp;{" "}
+                <i className="fa-solid fa-file-lines me-2" aria-hidden="true" /> &nbsp;{" "}
                 {t("Forms")}/
               </span>{" "}
               {form.title}
@@ -391,7 +397,7 @@ const View = React.memo((props) => {
         text={<Translation>{(t) => t("Loading...")}</Translation>}
         className="col-12"
       >
-  <div className="ml-4 mr-4">
+  <div className="ms-4 me-4">
     {isPublic || formStatus === "active" ? (
       <Form
         form={form}
@@ -427,13 +433,13 @@ const View = React.memo((props) => {
 const doProcessActions = (submission, ownProps) => {
   return (dispatch, getState) => {
     const state = getState();
-    let form = state.form.form;
+    let form = state.form?.form;
     let isAuth = state.user.isAuthenticated;
     const tenantKey = state.tenants?.tenantId;
     const redirectUrl = MULTITENANCY_ENABLED ? `/tenant/${tenantKey}/` : `/`;
     const origin = `${window.location.origin}${redirectUrl}`;
     dispatch(resetSubmissions("submission"));
-    const data = getProcessReq(form, submission._id, origin);
+    const data = getProcessReq(form, submission._id, origin,submission?.data);
     let draft_id = state.draft.draftSubmission?.id;
     let isDraftCreated = draft_id ? true : false;
     const applicationCreateAPI = selectApplicationCreateAPI(
@@ -517,7 +523,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onCustomEvent: (customEvent, redirectUrl) => {
       switch (customEvent.type) {
         case CUSTOM_EVENT_TYPE.CUSTOM_SUBMIT_DONE:
-          toast.success("Submission Saved.");
+          toast.success(
+            <Translation>{(t) => t("Submission Saved")}</Translation>
+          );
           dispatch(push(`${redirectUrl}form`));
           break;
         case CUSTOM_EVENT_TYPE.CANCEL_SUBMISSION:

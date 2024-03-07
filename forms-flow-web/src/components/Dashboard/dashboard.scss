@@ -1,11 +1,8 @@
-@import "./../../assets/styles/themes.scss";
-
 .dashboard {
-  background: $white;
-  margin-top: 10px;
+   margin-top: 10px;
 
   & .line-hr {
-    border-top: 1px solid $light-blue;
+    border-top: 1px solid var(--color-primary-ltr);
   }
 
   & .card-counter {
@@ -14,8 +11,8 @@
     transition: 1s;
 
     & .white-box {
-      background: $white;
-      border: 1px solid $light-blue;
+      background: var(--color-white);
+      border: 1px solid var(--color-primary-ltr);
       padding: 25px;
       margin-bottom: 30px;
       font-size: larger;
@@ -23,12 +20,11 @@
 
       &.active,
       &:hover {
-        background-color: $dark-blue  !important;
-        color: $white;
+        background-color: var(--color-primary-dkst) !important;
+        color: var(--color-white);
 
         & .small-title {
           font-size: 16px;
-          color: $white;
         }
       }
 
@@ -46,11 +42,11 @@
         font-weight: normal;
 
         & .counter {
-          font-size: 38px;
+          font-size: 24px;
+          font-weight: 700;
         }
       }
     }
-
   }
 
   & .progress {
@@ -64,11 +60,11 @@
 
   & .application-title {
     margin-bottom: -5px;
-    color: $black;
+    color: var(--color-black);
   }
 
   & .dashboard-title {
-    color: $black;
+    color: var(--color-black);
   }
 
   & .dashboard-icon-style {
@@ -85,13 +81,13 @@
   }
 
   & .react-daterange-picker__wrapper {
-    color: $black;
+    color: var(--color-black);
     padding: 5px;
-    border: 1px solid $black;
-    background: $white;
+    border: 1px solid var(--color-black);
+    background: var(--color-white);
 
     & input {
-      color: #036;
+      color:  var(--color-primary-dkst);
     }
 
     & select {
@@ -99,7 +95,7 @@
       -moz-appearance: none;
       text-indent: 1px;
       text-overflow: "";
-      color: #036;
+      color:  var(--color-primary-dkst);
     }
 
     & .react-daterange-picker__range-divider {
@@ -115,7 +111,7 @@
       align-self: center;
       flex-direction: row;
       flex-wrap: wrap;
-      border: 1px solid $black;
+      border: 1px solid var(--color-black);
       padding: 30px;
       border-radius: 10px;
 
@@ -139,14 +135,14 @@
 
   & .form-card-counter {
     & .counter {
-      font-size: 42px;
+      font-size: 24px;
+      font-weight: 700;
       text-align: center;
-      font-weight: bold;
     }
 
     & .form-title {
-      text-align: center;
-      color: #9eabc0 !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
     }
 
     .submission-counter {
@@ -166,7 +162,9 @@
 
     .small-title {
       font-size: 16px;
-      color: black;
+      font-weight: 400;
+      margin-left: 5px;
+      margin-top: 12px;
     }
   }
 
@@ -175,12 +173,27 @@
   }
 }
 
+
+.custom-input-group{
+  position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
 .form-select {
   width: 80px;
   height: 35px;
   border-radius: 3px;
-  border-color: rgba(222, 226, 230);
-  color: #0056B3
+  border-color: var(--color-primary-ltst);
+}
+
+.dashboard-sort{
+  font-size: 20px;
+}
+
+.dashboard-height{
+  min-height: 60vh;
 }
 
 .date-select {
@@ -188,6 +201,7 @@
   height: 45px;
   cursor: pointer;
 }
+
 
 .no_submission_main {
   min-width: 100%;
@@ -202,7 +216,11 @@
   justify-content: center;
 }
 
-.dashboard_container {
-  overflow-y: scroll;
-  max-height: 100px;
-}
+
+
+
+
+
+
+
+

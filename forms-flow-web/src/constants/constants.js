@@ -76,6 +76,7 @@ export const CLIENT = "formsflow-client";
 export const STAFF_DESIGNER = "formsflow-designer";
 export const STAFF_REVIEWER = "formsflow-reviewer";
 export const ANONYMOUS_USER = "anonymous";
+export const FORMSFLOW_ADMIN = "formsflow-admin";
 
 export const OPERATIONS = {
   insert: {
@@ -203,3 +204,5 @@ export const ENABLE_APPLICATIONS_MODULE =
   window._env_?.REACT_APP_ENABLE_APPLICATIONS_MODULE === false
     ? false
     : true;
+
+

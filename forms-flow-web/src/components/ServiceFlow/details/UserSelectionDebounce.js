@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AsyncSelect from "react-select/async";
 import { useDispatch } from "react-redux";
 import { Row, Col } from "react-bootstrap";
@@ -10,10 +10,8 @@ import {
   SearchByLastName,
   UserSearchFilterTypes,
 } from "../constants/userSearchFilterTypes";
-import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
-import Form from "react-bootstrap/Form";
-import { useTranslation } from "react-i18next";
+
 const UserSelectionDebounce = React.memo((props) => {
   const { onClose, currentUser, onChangeClaim } = props;
   const dispatch = useDispatch();
@@ -23,6 +21,23 @@ const UserSelectionDebounce = React.memo((props) => {
       controlHeight: 25,
     },
   });
+  const userSelectionRef = useRef(null);
+  const handleClick = (e) => {
+    if (userSelectionRef?.current?.contains(e.target)) {
+      return;
+    }
+    // outside click
+    onClose();
+  };
+
+  useEffect(() => {
+    // add when mounted
+    document.addEventListener("mousedown", handleClick);
+    // return function to be called when unmounted
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, []);
   const [selectedValue, changeSelectedValue] = useState({
     value: currentUser,
     label: currentUser,
@@ -31,7 +46,6 @@ const UserSelectionDebounce = React.memo((props) => {
     UserSearchFilterTypes[0]
   );
   const [isSearch, setIsSearch] = useState(false);
-  const { t } = useTranslation();
   const loadOptions = (inputValue = "", callback) => {
     dispatch(
       fetchUserListWithSearch(
@@ -68,6 +82,10 @@ const UserSelectionDebounce = React.memo((props) => {
         return "";
     }
   };
+  const handleChange = (selectedOption) => {
+    changeSelectedValue(selectedOption);
+    onChangeClaim(selectedOption?.value || null);
+  };
 
   const formatOptionLabel = (
     { id, firstName, lastName, email },
@@ -78,8 +96,7 @@ const UserSelectionDebounce = React.memo((props) => {
     } else if (context === "menu") {
       return (
         <div
-          className="p-2 click-element"
-          style={{ display: "flex", flexDirection: "column" }}
+          className="d-flex flex-column p-2 click-element"
         >
           <div>{id}</div>
           <div>{formatNameLabel(firstName, lastName, email)}</div>
@@ -90,63 +107,60 @@ const UserSelectionDebounce = React.memo((props) => {
 
   return (
     <>
-      <Row md={{ span: 3, offset: 3 }}>
-        <Col xs={12} md={10}>
-          <button
-            className="btn btn-pos"
-            title={t("Update User")}
-            onClick={() => onChangeClaim(selectedValue?.value || null)}
-          >
-            <i className="fa fa-check fa-lg mr-1" />
-          </button>
-          <button className="btn btn-pos" onClick={onClose} title={t("Close")}>
-            <i className="fa fa-times-circle fa-lg mr-1" />
-          </button>
-        </Col>
-      </Row>
-      <Row>
-        <Col sm={10}>
+      <Row ref={userSelectionRef} data-testid="task-user-selection-row">
+        <Col sm={10} className="no-padding-left pe-1">
           <AsyncSelect
             cacheOptions
             theme={customThemeFn}
             loadOptions={loadOptions}
             isClearable
             defaultOptions
-            onChange={changeSelectedValue}
+            onChange={handleChange}
             className="select-user"
             placeholder={isSearch ? searchTypeOption.title || "Select..." : ""}
             formatOptionLabel={formatOptionLabel}
+            onMenuClose={onClose}
+            value={selectedValue}
+            data-testid="task-async-user-select"
           />
         </Col>
-        <Col sm={2} className="p-0">
-          <DropdownButton
-            id="dropdown-basic-button"
-            title={<i className="fa fa-filter" />}
-            size="sm"
-            variant="secondary"
-          >
-            {UserSearchFilterTypes.map((UserSearchFilterType, idx) => {
-              return (
-                <Dropdown.Item
+        <Col sm={2} className="p-0 no-padding-left">
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="secondary"
+              id="dropdown-basic"
+              data-testid="assignee-search-filter-dropdown-toggle"
+            >
+              <i className="fa fa-filter" />
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="searchtype-dropdown">
+              {UserSearchFilterTypes.map((UserSearchFilterType, idx) => (
+                <div
                   key={idx}
-                  className="click-element"
-                  onClick={() => setSearchTypeOption(UserSearchFilterType)}
+                  className="mb-2 mx-2"
+                  data-testid={`assignee-search-filter-option-${idx}`}
                 >
-                  <Form.Check
-                    type="radio"
-                    id={UserSearchFilterType.searchType}
-                    key={UserSearchFilterType.searchType}
-                    label={UserSearchFilterType.title}
-                    value={UserSearchFilterType.searchType}
-                    checked={
-                      searchTypeOption.searchType ===
-                      UserSearchFilterType.searchType
-                    }
-                  />
-                </Dropdown.Item>
-              );
-            })}
-          </DropdownButton>
+                  <label className="form-check-label fw-normal">
+                    <input
+                      className="form-check-input me-2"
+                      type="radio"
+                      id={UserSearchFilterType.searchType}
+                      name="searchType"
+                      value={UserSearchFilterType.searchType}
+                      onChange={() => setSearchTypeOption(UserSearchFilterType)}
+                      checked={
+                        searchTypeOption.searchType ===
+                        UserSearchFilterType.searchType
+                      }
+                      data-testid={`assignee-filter-option-${UserSearchFilterType.searchType}`}
+                    />
+                    {UserSearchFilterType.title}
+                  </label>
+                  <br />
+                </div>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
         </Col>
       </Row>
     </>

@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import Enum, unique
 from typing import List, Optional
 
-from sqlalchemy import JSON, or_
+from sqlalchemy import JSON, and_, or_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 
 from .audit_mixin import AuditDateTimeMixin, AuditUserMixin
@@ -21,6 +21,7 @@ class AuthType(Enum):
     FORM = "FORM"
     FILTER = "FILTER"
     DESIGNER = "DESIGNER"
+    APPLICATION = "APPLICATION"
 
     def __str__(self):
         """To string value."""
@@ -66,10 +67,20 @@ class Authorization(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model):
         return query.all()
 
     @classmethod
-    def _auth_query(cls, auth_type, roles, tenant, user_name):
+    def _auth_query(
+        cls, auth_type, roles, tenant, user_name, include_created_by=False
+    ):  # pylint: disable=too-many-arguments
         role_condition = [Authorization.roles.contains([role]) for role in roles]
         query = cls.query.filter(Authorization.auth_type == auth_type).filter(
-            or_(*role_condition, Authorization.user_name.contains(user_name))
+            or_(
+                *role_condition,
+                include_created_by and Authorization.created_by == user_name,
+                Authorization.user_name == user_name,
+                and_(
+                    Authorization.user_name.is_(None),
+                    or_(Authorization.roles == {}, Authorization.roles.is_(None)),
+                ),
+            )
         )
 
         if tenant:
@@ -91,24 +102,47 @@ class Authorization(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model):
         return query.all()
 
     @classmethod
+    # pylint: disable=too-many-arguments
     def find_resource_by_id(
         cls,
         auth_type: AuthType,
         resource_id: str,
+        is_designer: bool = False,
+        roles: List[str] = None,
         user_name: str = None,
         tenant: str = None,
+        include_created_by: bool = False,
     ) -> Optional[Authorization]:
         """Find resource authorization by id."""
-        query = (
-            cls.query.filter(Authorization.resource_id == str(resource_id))
-            .filter(Authorization.auth_type == auth_type)
-            .filter(
-                or_(
-                    Authorization.user_name.is_(None),
-                    Authorization.user_name == user_name,
-                )
+        if (
+            is_designer and auth_type != AuthType.DESIGNER
+        ) or auth_type == AuthType.DASHBOARD:
+            query = cls.query.filter(Authorization.auth_type == auth_type)
+        else:
+            query = cls._auth_query(
+                auth_type, roles, tenant, user_name, include_created_by
             )
-        )
+        query = query.filter(Authorization.resource_id == str(resource_id))
         if tenant:
             query = query.filter(Authorization.tenant == tenant)
         return query.one_or_none()
+
+    @classmethod
+    def find_all_resources_authorized(
+        cls, auth_type, roles, tenant, user_name, include_created_by=False
+    ):  # pylint: disable=too-many-arguments
+        """Find all resources authorized to specific user/role or Accessible by all users/roles."""
+        query = cls._auth_query(auth_type, roles, tenant, user_name, include_created_by)
+        return query.all()
+
+    @classmethod
+    def find_auth_list_by_id(  # pylint: disable=too-many-arguments
+        cls,
+        resource_id: str,
+        tenant: str,
+    ) -> List[Authorization]:
+        """Find authorizations by id."""
+        query = cls.query.filter(Authorization.resource_id == str(resource_id))
+        if tenant:
+            query = query.filter(Authorization.tenant == tenant)
+        return query.all()

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Spinner from "react-bootstrap/Spinner";
+import { DesignerAccessDenied } from "../../../actions/checkListActions";
 import { Translation, useTranslation } from "react-i18next";
 
 // eslint-disable-next-line no-unused-vars
-const FileModal = React.memo(({ modalOpen = false, onClose, forms }) => {
+const FileModal = React.memo(({ modalOpen = false, onClose, forms, }) => {
+  const dispatch = useDispatch();
   const formUploadList = useSelector(
     (state) => state.formCheckList.formUploadFormList
   );
@@ -15,6 +17,9 @@ const FileModal = React.memo(({ modalOpen = false, onClose, forms }) => {
   );
   const formUploadFailureCounter = useSelector(
     (state) => state.formCheckList.formUploadFailureCounter
+  );
+  const noAccess = useSelector(
+    (state) => state.formCheckList.designerAccessDenied
   );
   const [formsUploaded, setFormsUploaded] = useState(0);
   const { t } = useTranslation();
@@ -36,7 +41,7 @@ const FileModal = React.memo(({ modalOpen = false, onClose, forms }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div style={{ paddingBottom: "7px", color: "#450ccb", fontWeight: "bold" }}>
+          <div className="text-primary pb-3 fw-bold">
             {`${formUploadCounter} of ${formUploadList.length} ${formUploadList.length > 1
               ? t("forms uploaded")
               : t("form uploaded")
@@ -49,12 +54,13 @@ const FileModal = React.memo(({ modalOpen = false, onClose, forms }) => {
             )}
             {formUploadFailureCounter !== 0 && <span className="fileupload-fail">
               {
-                formUploadFailureCounter !== 0 ? `Failed to upload ${formUploadFailureCounter} ${formUploadFailureCounter > 1 ? "forms...!" : "form...!"}` : ''
+                formUploadFailureCounter !== 0 ? `${t("Failed to upload")} ${formUploadFailureCounter} ${formUploadFailureCounter > 1 ? t("forms...!") : t("form...!")}` : ''
               }
             </span>}
           </div>
           {formUploadList.length ? (
-            <div className="progress" style={{ height: "5px", marginTop: "11px" }}>
+            <div className="progress upload-progress" 
+            >
               <div
                 className="progress-bar"
                 role="progressbar"
@@ -70,9 +76,12 @@ const FileModal = React.memo(({ modalOpen = false, onClose, forms }) => {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer>
-
-          <Button style={{ width: "20%" }} type="button" className="btn btn-default" onClick={onClose}>
+        <Modal.Footer style={{ justifyContent: `${noAccess ? "space-between" : ''}` }}>
+          {noAccess && <span className="fileupload-fail">{t("Access restricted by its designer..!")}</span>}
+          <Button type="button" className="btn btn-default w-20" onClick={() => {
+            dispatch(DesignerAccessDenied(false));
+            onClose();
+          }}>
             <Translation>{(t) => t("Close")}</Translation>
           </Button>
         </Modal.Footer>

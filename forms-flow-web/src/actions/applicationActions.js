@@ -59,6 +59,14 @@ export const serviceActionError = (data) => (dispatch) => {
   });
 };
 
+export const setApiFailure = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.API_FAILURE,
+    payload: data,
+  });
+};
+
+
 export const setApplicationProcess = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.APPLICATION_PROCESS,
@@ -104,6 +112,34 @@ export const setApplicationError = (data) => (dispatch) => {
 export const setPublicStatusLoading = (data) => (dispatch) => {
   dispatch({
     type: ACTION_CONSTANTS.IS_PUBLIC_STATUS_LOADING,
+    payload: data,
+  });
+};
+
+export const setApplicationSortOrder = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.IS_APPLICATION_LIST_SORT_ORDER,
+    payload: data,
+  });
+};
+
+export const setApplicationSortBy = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.IS_APPLICATION_LIST_SORT_BY,
+    payload: data,
+  });
+};
+
+export const setApplicationLoading = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.IS_APPLICATION_LOADING,
+    payload: data,
+  });
+};
+
+export const setApplicationListSearchParams = (data) => (dispatch) => {
+  dispatch({
+    type: ACTION_CONSTANTS.APPLICATION_LIST_SEARCH_PARAMS,
     payload: data,
   });
 };

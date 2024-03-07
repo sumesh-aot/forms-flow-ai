@@ -1,5 +1,5 @@
-import NotFound from "../components/NotFound";
 import { Translation } from "react-i18next";
+import "./helper.scss";
 
 const replaceUrl = (URL, key, value) => {
   return URL.replace(key, value);
@@ -8,8 +8,7 @@ const replaceUrl = (URL, key, value) => {
 const addTenantkey = (value, tenantkey) => {
   const tenantKeyCheck = value.match(`${tenantkey}-`);
   if (
-    tenantKeyCheck &&
-    tenantKeyCheck[0].toLowerCase() === `${tenantkey.toLowerCase()}-`
+    tenantKeyCheck && tenantKeyCheck[0].toLowerCase() === `${tenantkey.toLowerCase()}-`
   ) {
     return value.toLowerCase();
   } else {
@@ -36,28 +35,17 @@ const textTruncate = (wordLength, targetLength, text) => {
 };
 
 const renderPage = (formStatus, processLoadError) => {
-  if (!processLoadError && (formStatus === "inactive" || !formStatus)) {
+  if (!processLoadError && ((formStatus === "inactive") || !formStatus)) {
     return (
       <span>
         <div
-          className="container"
-          style={{
-            maxWidth: "900px",
-            margin: "auto",
-            height: "50vh",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="container-md d-flex flex-column align-items-center justify-content-center"
         >
           <h3>{<Translation>{(t) => t("Form not published")}</Translation>}</h3>
           <p>{<Translation>{(t) => t("You can't submit this form until it is published")}</Translation>}</p>
         </div>
       </span>
     );
-  } else {
-    return (<NotFound errorMessage={<Translation>{(t) => t("Access Denied") }</Translation> } errorCode={"403"} />);
-  }
+  } 
 };
 export { replaceUrl, addTenantkey, removeTenantKey, textTruncate, renderPage };

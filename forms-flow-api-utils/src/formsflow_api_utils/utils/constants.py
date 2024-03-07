@@ -12,6 +12,7 @@ CORS_ORIGINS = []
 if FORMSFLOW_API_CORS_ORIGINS != "*":
     CORS_ORIGINS = FORMSFLOW_API_CORS_ORIGINS.split(",")
 ADMIN_GROUP = "formsflow-admin"
+CAMUNDA_ADMIN = "camunda-admin"
 DESIGNER_GROUP = "formsflow-designer"
 REVIEWER_GROUP = "formsflow-reviewer"
 CLIENT_GROUP = "formsflow-client"
@@ -35,6 +36,10 @@ FILTER_MAPS = {
     "form_name": {"field": "form_name", "operator": "ilike"},
     "id": {"field": "id", "operator": "eq"},
     "form_type": {"field": "form_type", "operator": "eq"},
+    "can_bundle": {"field": "can_bundle", "operator": "eq"},
+    "is_bundle": {"field": "is_bundle", "operator": "eq"},
+    "title":{"field": "title", "operator": "ilike"},
+    "category":{"field": "category", "operator": "ilike"},
 }
 
 DEFAULT_PROCESS_KEY = "Defaultflow"

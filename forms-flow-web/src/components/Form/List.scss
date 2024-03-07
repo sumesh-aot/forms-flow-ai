@@ -11,29 +11,36 @@
     }
 }
 
+.published-forms-label{
+    color: var(--published-form-label);
+    // #52C41A;
+    background: var(--published-background) 0% 0% no-repeat padding-box;
+    border: 1px solid var(--published-form-label);
+    border-radius: 7px;
+}
+
+.unpublished-forms-label{
+    background: var(--unpublished-background) 0% 0% no-repeat padding-box;
+    border-radius: 7px;
+    border: 1px solid var(--unpublished-label);
+    color: var(--unpublished-label);
+}
 .custom-grid {
     .col {
-        border-left: 1px solid #ced4da;
         min-height: 50px;
         text-align: start;
         padding-top: 15px;
         height: auto;
         word-break: break-all;
     }
-
-    .list-group-item {
-        border-top: 1px solid #ced4da !important;
-        padding: 0rem 1.25rem !important;
-    }
-
-    .list-group-item:first-child {
-        border-bottom: 1.5px solid #ced4da !important;
-        background-color: #F2F2F2 !important;
-    }
-
+    
     h5,
     .h5 {
         font-weight: 400 !important;
+    }
+
+    .select {
+        max-width: 105px !important;
     }
 
     .btn-link {
@@ -61,8 +68,8 @@
     }
 
     .btn {
-        margin-right: 5px;
-        margin-top: 1px;
+        margin-right: 0px;
+        margin-top: 0px;
         margin-bottom: 7px;
     }
 }
@@ -88,32 +95,93 @@
     flex: 10%;
 }
 
+.list-margin{
+    margin-top: -10px;
+}
+
 .flex-item-right {
     justify-content: flex-end;
     display: flex;
     flex-direction: row;
     flex: 50%;
-    flex-wrap: wrap;
+flex-wrap: wrap;
 }
 
 .btn-left {
     margin: 10px;
-    height: 30px;
-    white-space: nowrap;
+    height: 30px;white-space: nowrap;
 }
+
 .progress-bar {
-    background-color: #ff0000ab;
+    background-color: var(--color-danger);
 }
+
 .fileupload-fail {
-    color: #f85757;
+    color: var(--color-danger-ltr);
     float: right;
     font-weight: normal
 }
+
+
+.form-check-input{
+    width: 15px;
+    height: 15px;
+}
+
+.min-height-400{
+    min-height: 400px;
+}
+.fs-16{
+  font-size: 16px;  
+}
+.description-title{
+  max-width: 350px;  
+}
+.description-content{
+    max-width: 68vw;
+}
+.clientForm-table-col{
+    min-height: 300px;
+}
+.upload-progress{
+    height: 5px;
+    margin-top: 11px;
+}
+
+.public-label {
+    margin-right: 12px;
+}
+.custom-control {
+    padding-bottom: 4px !important;
+}
 /* Responsive layout - makes a one column-layout instead of a two-column layout */
 @media (max-width: 800px) {
+
     .flex-item-right,
     .flex-item-left {
-        flex: 100%;
-        justify-content: flex-start;
+        flex: 100%;justify-content: flex-start;
     }
+}
+.page-item .page-link {
+    color: var(--color-primary)!important;
+}
+.page-item.active .page-link {
+    color: var(--color-white) !important;
+}
+
+/* Style the dots */
+.dots {
+    cursor: pointer;
+    user-select: none;
+    font-size: 24px;
+  }
+
+ 
+
+ .custom-button {
+    width: auto;
+  }
+.form-description-p-tag > p{
+    word-wrap: break-word;
+    max-width: 68vw;
 }

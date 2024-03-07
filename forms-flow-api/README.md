@@ -1,8 +1,8 @@
 # formsflow.ai API
 
 [![FormsFlow API CI](https://github.com/AOT-Technologies/forms-flow-ai-dev/actions/workflows/forms-flow-api-ci.yml/badge.svg?branch=develop)](https://github.com/AOT-Technologies/forms-flow-ai-dev/actions)
-![Python](https://img.shields.io/badge/python-3.9-blue) ![Flask](https://img.shields.io/badge/Flask-2.1.3-blue) ![postgres](https://img.shields.io/badge/postgres-11.0-blue)
-[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+![Python](https://img.shields.io/badge/python-3.9-blue) ![Flask](https://img.shields.io/badge/Flask-2.3.3-blue) ![postgres](https://img.shields.io/badge/postgres-11.0-blue)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
 
 **formsflow.ai** has built this adaptive tier for correlating form management, BPM and analytics together.
 
@@ -19,6 +19,7 @@ the system. It is built using Python :snake: .
    * [Step 4 : Verify the Application Status](#verify-the-application-status)
 3. [API Documentation](#api-documentation)
 4. [Unit Testing](#unit-testing)
+5. [Migration Script for existing users](#migration-script-for-existing-users) (For listing existing forms for clients)
 
 ## Prerequisites
 
@@ -146,6 +147,29 @@ Things to note when writing tests:
 
 * Isolated: Each test should be an introvert, working in their own isolated bubble. You should never have to think about what other tests have put in the database.
 * Tests functions should contain always `app, client, session`
+
+## Migration Script for existing users
+
+#### To display existing forms and applications for clients and reviewers, it is necessary to migrate the current Camunda authorizations. Additionally, to transfer existing task filters from forms-flow-bpm to forms-flow-api
+
+#### Follow the steps below: 
+
+Run a bash script inside the forms-flow-api. If you need to run this script in the instance or server, such as a Kubernetes cluster or Nginx, you have to access the Docker container of the FormsFlow web API and 
+execute the bash script called [migration.sh](./migration.sh). 
+
+#### Commands to execute:
+
+* To migrate forms:  `migration.sh form`
+* To migrate applications:  `migration.sh application`
+* To migrate filter: `migration.sh filter`<br>
+     * In multi-tenant environment: `migration.sh filter <tenant-key>` 
+ 
+
+
+Alternatively, if you are setting up the environment locally and running the Docker container locally, you can get inside the FormsFlow web API container and run preferred command.
+
+In the case of running the web API with Flask locally, you should activate the virtual environment and run the bash script within it. You can create the virtual environment by following the instructions provided in the [Makefile](./Makefile) inside the forms-flow-api.
+
 
 #### References for Testing in Python
 

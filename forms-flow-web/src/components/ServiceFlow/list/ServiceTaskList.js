@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ListGroup, Row } from "react-bootstrap";
+import { ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchServiceTaskList } from "../../../apiManager/services/bpmTaskServices";
 import {
@@ -13,14 +13,14 @@ import {
   getProcessDataObjectFromList,
   getFormattedDateAndTime,
 } from "../../../apiManager/services/formatterService";
-import TaskFilterComponent from "./search/TaskFilterComponent";
 import Pagination from "react-js-pagination";
 import { push } from "connected-react-router";
 import { MAX_RESULTS } from "../constants/taskConstants";
 import { getFirstResultIndex } from "../../../apiManager/services/taskSearchParamsFormatterService";
 import TaskVariable from "./TaskVariable";
 import { MULTITENANCY_ENABLED } from "../../../constants/constants";
-const ServiceFlowTaskList = React.memo(() => {
+const ServiceFlowTaskList = React.memo((props) => {
+  const {expandedTasks,setExpandedTasks} = props;
   const { t } = useTranslation();
   const taskList = useSelector((state) => state.bpmTasks.tasksList);
   const tasksCount = useSelector((state) => state.bpmTasks.tasksCount);
@@ -32,6 +32,7 @@ const ServiceFlowTaskList = React.memo(() => {
   const dispatch = useDispatch();
   const processList = useSelector((state) => state.bpmTasks.processList);
   const selectedFilter = useSelector((state) => state.bpmTasks.selectedFilter);
+  const firstResult = useSelector((state) => state.bpmTasks.firstResult);
   const activePage = useSelector((state) => state.bpmTasks.activePage);
   const tasksPerPage = MAX_RESULTS;
   const tenantKey = useSelector((state) => state.tenants?.tenantId);
@@ -40,12 +41,20 @@ const ServiceFlowTaskList = React.memo(() => {
   );
 
   useEffect(() => {
-    if (selectedFilter) {
+    if (selectedFilter?.id) {
+ 
+        const selectedBPMFilterParams = {
+          ...selectedFilter,
+          criteria: {
+            ...selectedFilter?.criteria,
+            ...reqData?.criteria
+          }
+        };
       dispatch(setBPMTaskLoader(true));
       dispatch(setBPMTaskListActivePage(1));
-      dispatch(fetchServiceTaskList(selectedFilter.id, 0, reqData));
+      dispatch(fetchServiceTaskList(selectedBPMFilterParams,null,firstResult));
     }
-  }, [dispatch, selectedFilter, reqData]);
+  }, [reqData]);
 
   const getTaskDetails = (taskId) => {
     if (taskId !== bpmTaskId) {
@@ -58,14 +67,18 @@ const ServiceFlowTaskList = React.memo(() => {
     dispatch(setBPMTaskLoader(true));
     let firstResultIndex = getFirstResultIndex(pageNumber);
     dispatch(
-      fetchServiceTaskList(selectedFilter.id, firstResultIndex, reqData)
+      fetchServiceTaskList(reqData,null,firstResultIndex)
     );
   };
 
-  const renderTaskList = () => {
+  
+
+  const renderTaskList = () => { 
     if ((tasksCount || taskList.length) && selectedFilter) {
       return (
         <>
+          <div className="min-vh-67"
+          >
           {taskList.map((task, index) => (
             <div
               className={`clickable shadow border  ${
@@ -74,13 +87,13 @@ const ServiceFlowTaskList = React.memo(() => {
               key={index}
               onClick={() => getTaskDetails(task.id)}
             >
-              <Row>
-                <div className="col-12">
-                  <h5 className="font-weight-bold">{task.name}</h5>
+             
+                <div className="col-12 px-0">
+                  <h5 className="fw-bold">{task.name}</h5>
                 </div>
-              </Row>
-              <div className="font-size-16 d-flex justify-content-between">
-                <div className="pr-0" style={{ maxWidth: "65%" }}>
+             
+              <div className="fs-16 d-flex justify-content-between">
+              <div className="pe-0 mw-65 text-truncate">
                   <span data-toggle="tooltip" title="Form Name">
                     {
                       getProcessDataObjectFromList(
@@ -93,17 +106,16 @@ const ServiceFlowTaskList = React.memo(() => {
                 <div
                   data-toggle="tooltip"
                   title={t("Task assignee")}
-                  className="pr-0 text-right d-inline-block text-truncate"
-                  style={{maxWidth:"150"}}
+                  className="pe-0 text-right d-inline-block text-truncate"  
                 >
                   <span> {task.assignee}</span>
                 </div>
               </div>
               <div
-                className="d-flex justify-content-between text-muted"
-                style={{ marginBottom: "-8px", fontSize: "14px" }}
+                className="d-flex justify-content-between service-task-action "
               >
-                <div style={{ maxWidth: "70%" }}>
+                <div className="mw-70"
+                >
                   <span
                     className="tooltiptext"
                     title={task.due ? getFormattedDateAndTime(task.due) : ""}
@@ -136,47 +148,55 @@ const ServiceFlowTaskList = React.memo(() => {
                     {t("Created")} {moment(task.created).fromNow()}
                   </span>
                 </div>
-                <div className="pr-0 text-right tooltips" title={t("Priority")}>
+                <div className="pe-0 text-right" title={t("Priority")}>
                   {task.priority}
                 </div>
               </div>
 
               {task._embedded?.variable && (
-                <TaskVariable variables={task._embedded?.variable || []} />
+                <TaskVariable 
+                expandedTasks={expandedTasks}
+                setExpandedTasks={setExpandedTasks}
+                taskId={task?.id}  
+                variables={task._embedded?.variable || []} />
               )}
             </div>
           ))}
 
-          <Row style={{justifyContent: "flex-end"}}>
-          <div className="pagination-wrapper">
+          </div>
+         
+              <div className="d-flex justify-content-end">
+                
             <Pagination
               activePage={activePage}
               itemsCountPerPage={tasksPerPage}
               totalItemsCount={tasksCount}
-              pageRangeDisplayed={3}
+              pageRangeDisplayed={5}
               onChange={handlePageChange}
               prevPageText="<"
               nextPageText=">"
+              itemClass="page-item"
+              linkClass="page-link"
             />
-          </div>
-          </Row>
+              </div>
+        
+       
 
         </>
       );
-    } else {
+    } else { 
       return (
-        <Row className="not-selected mt-2 ml-1">
-          <i className="fa fa-info-circle mr-2 mt-1" />
+        <div className="d-flex align-items-center justify-content-center py-4 px-2">
+          <i className="fa fa-info-circle me-2" />
           {t("No task matching filters found.")}
-        </Row>
+        </div>
       );
     }
   };
 
   return (
     <>
-      <ListGroup className="service-task-list">
-        <TaskFilterComponent  totalTasks={isTaskListLoading ? 0 : tasksCount} />
+      <ListGroup className="service-task-list d-block">
         {isTaskListLoading ? <Loading /> : renderTaskList()}
       </ListGroup>
     </>

@@ -11,7 +11,7 @@ import {
 import { push } from "connected-react-router";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation, Translation } from "react-i18next";
-import LoadingOverlay from "react-loading-overlay";
+import LoadingOverlay from "react-loading-overlay-ts";
 import { toast } from "react-toastify";
 import isEqual from "lodash/isEqual";
 
@@ -45,7 +45,7 @@ import SubmissionError from "../../containers/SubmissionError";
 import SavingLoading from "../Loading/SavingLoading";
 import Confirm from "../../containers/Confirm";
 import { setDraftDelete } from "../../actions/draftActions";
-import { setFormStatusLoading } from "../../actions/processActions"; 
+import { setFormStatusLoading } from "../../actions/processActions";
 import { getFormProcesses } from "../../apiManager/services/processServices";
 import { textTruncate } from "../../helper/helper";
 
@@ -94,7 +94,16 @@ const View = React.memo((props) => {
   } = props;
   const dispatch = useDispatch();
 
-  const saveDraft = (payload, exitType = exitType) => {
+  const formStatusLoading = useSelector(
+    (state) => state.process?.formStatusLoading
+  );
+
+  const processData = useSelector(
+    (state) => state.process?.formProcessList
+  );
+
+  
+  const saveDraft = (payload, exitType) => {
     if (exitType === "SUBMIT" || processData?.status !== "active") return;
     let dataChanged = !isEqual(payload.data, lastUpdatedDraft.data);
     if (draftSubmission?.id) {
@@ -117,14 +126,6 @@ const View = React.memo((props) => {
       }
     }
   };
-  const formStatusLoading = useSelector(
-    (state) => state.process?.formStatusLoading
-  );
-
-  const processData = useSelector(
-    (state) => state.process?.formProcessList
-  );
-
   /**
    * We will repeatedly update the current state to draft table
    * on purticular interval
@@ -150,11 +151,14 @@ const View = React.memo((props) => {
 
   useEffect(() => {
     return () => {
-      let payload = getDraftReqFormat(formId, draftRef.current);
-      if (poll) saveDraft(payload, exitType.current);
+       if(draftRef.current)
+      {
+        let payload = getDraftReqFormat(formId, draftRef.current);
+        if (poll) saveDraft(payload, exitType.current);
+      }
     };
-  }, [poll, exitType.current, draftSubmission?.id]);
- 
+  }, [poll, exitType.current, draftSubmission?.id, processData?.status]);
+
   if (isActive || isPublicStatusLoading || formStatusLoading) {
     return (
       <div data-testid="loading-view-component">
@@ -162,7 +166,8 @@ const View = React.memo((props) => {
       </div>
     );
   }
-  
+
+
 
   const deleteDraft = () => {
     dispatch(
@@ -216,15 +221,15 @@ const View = React.memo((props) => {
   }
 
   return (
-    <div className="container overflow-y-auto">
+    <div className=" overflow-y-auto">
       {
         <>
-          <span className="pr-2  mr-2 d-flex justify-content-end align-items-center">
+          <span className="pe-2  me-2 d-flex justify-content-end align-items-center">
             {poll && showNotification && (
               <SavingLoading
                 text={
                   draftSaved
-                    ? t("Saved to Applications/Drafts")
+                    ? t("Saved to Submissions/Drafts")
                     : t("Saving...")
                 }
                 saved={draftSaved}
@@ -234,22 +239,22 @@ const View = React.memo((props) => {
         </>
       }
       <div className="d-flex align-items-center justify-content-between">
-        <div className="main-header">
+        <div className="d-flex align-items-center">
           <SubmissionError
             modalOpen={props.submissionError.modalOpen}
             message={props.submissionError.message}
             onConfirm={props.onConfirm}
           ></SubmissionError>
           {isAuthenticated ? (
-            <Link title={t("go back")} to={`${redirectUrl}draft`}>
-              <i className="fa fa-chevron-left fa-lg" />
+            <Link data-testid="back-to-drafts-link" title={t("Back to Drafts")} to={`${redirectUrl}draft`} className="">
+              <i className="fa fa-chevron-left fa-lg me-2" />
             </Link>
           ) : null}
 
           {form.title ? (
-            <h3 className="ml-3">
+            <h3 className="">
               <span className="task-head-details">
-                <i className="fa fa-wpforms" aria-hidden="true" /> &nbsp;{" "}
+                <i className="fa-solid fa-file-lines me-2" aria-hidden="true" /> &nbsp;{" "}
                 {t("Drafts")}/
               </span>{" "}
               {textTruncate(60,40,form.title)}
@@ -260,8 +265,8 @@ const View = React.memo((props) => {
         </div>
         {processData?.status === "active" ? (
           <button
-            className="btn btn-danger mr-2"
-            style={{ width: "8.5em" }}
+            data-testid="draft-discard"
+            className="btn btn-danger me-2"
             onClick={() => deleteDraft()}
           >
             {t("Discard Draft")}
@@ -275,21 +280,30 @@ const View = React.memo((props) => {
         active={isFormSubmissionLoading}
         spinner
         text={<Translation>{(t) => t("Loading...")}</Translation>}
-        className="col-12"
+        className="col-12 p-0"
       >
-        <div className="ml-4 mr-4">
-          <Confirm
-            modalOpen={draftDelete.modalOpen}
-            message={`${t("Are you sure you wish to delete the draft")} "${
-              textTruncate(14,12,draftDelete.draftName)
-            }" 
-            ${t("with ID")} "${draftDelete.draftId}"`}
-            onNo={() => onNo()}
-            onYes={(e) => {
-              exitType.current = "SUBMIT";
-              onYes(e);
-            }}
-          />
+        <div className="mt-4">
+        <Confirm
+  modalOpen={draftDelete.modalOpen}
+  message={
+    <>
+
+      {t("Are you sure to delete the draft")} 
+      <span className="fw-bold">&nbsp;
+        {textTruncate(14, 12, draftDelete.draftName)}
+      </span>&nbsp;
+      {t("with ID")} 
+      <span className="fw-bold">&nbsp;
+        {draftDelete.draftId}
+      </span> ?
+    </>
+  }
+  onNo={() => onNo()}
+  onYes={(e) => {
+    exitType.current = "SUBMIT";
+    onYes(e);
+  }}
+/>
           {processData?.status === "active" ? (
             <div className="form-view-wrapper">
               <Form
@@ -317,17 +331,7 @@ const View = React.memo((props) => {
           ) : (
             <span>
               <div
-                className="container"
-                style={{
-                  maxWidth: "900px",
-                  margin: "auto",
-                  height: "50vh",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+                className="container-md d-flex align-items-center justify-content-center draft-edit">
                 <h3>{t("Form not published")}</h3>
                 <p>{t("You can't submit this form until it is published")}</p>
               </div>
@@ -347,13 +351,13 @@ const executeAuthSideEffects = (dispatch, redirectUrl) => {
 const doProcessActions = (submission, ownProps) => {
   return (dispatch, getState) => {
     const state = getState();
-    let form = state.form.form;
+    let form = state.form?.form;
     let isAuth = state.user.isAuthenticated;
     const tenantKey = state.tenants?.tenantId;
     const redirectUrl = MULTITENANCY_ENABLED ? `/tenant/${tenantKey}/` : `/`;
     dispatch(resetSubmissions("submission"));
     const origin = `${window.location.origin}${redirectUrl}`;
-    const data = getProcessReq(form, submission._id, origin);
+    const data = getProcessReq(form, submission._id, origin, submission?.data);
     let draft_id = state.draft.submission?.id;
     let isDraftCreated = draft_id ? true : false;
     const applicationCreateAPI = selectApplicationCreateAPI(
@@ -361,6 +365,7 @@ const doProcessActions = (submission, ownProps) => {
       isDraftCreated,
       DRAFT_ENABLED
     );
+   
     dispatch(
       applicationCreateAPI(data, draft_id ? draft_id : null, (err) => {
         dispatch(setFormSubmissionLoading(false));
@@ -433,7 +438,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onCustomEvent: (customEvent, redirectUrl) => {
       switch (customEvent.type) {
         case CUSTOM_EVENT_TYPE.CUSTOM_SUBMIT_DONE:
-          toast.success("Submission Saved.");
+          toast.success(
+            <Translation>{(t) => t("Submission Saved")}</Translation>
+          );
           dispatch(push(`${redirectUrl}draft`));
           break;
         case CUSTOM_EVENT_TYPE.CANCEL_SUBMISSION:

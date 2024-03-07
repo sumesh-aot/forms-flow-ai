@@ -1,6 +1,192 @@
 # Changelog for formsflow.ai
 
-Mark  items as `Added`, `Changed`, `Fixed`, `Removed`, `Untested Features`, `Upcoming Features`, `Known Issues`
+Mark  items as `Added`, `Changed`, `Fixed`, `Modified`, `Removed`, `Untested Features`, `Upcoming Features`, `Known Issues`
+
+## 5.3.1 - 2024-02-14
+
+`Fixed`
+
+**forms-flow-web**
+
+* Fixed task page infinity loading issue
+* Fixed task list filter API breaking on initial time
+* Fixed tenant based all tasks not showing issue
+
+**forms-flow-documents**
+
+* Fixed security vulnerabilities
+
+**forms-flow-data-analysis-api**
+
+* Fixed security vulnerabilities
+
+`Modified`
+
+**forms-flow-api**
+
+* Changes have been made to the Roles and Groups endpoint to accommodate modifications related to subgroups in Keycloak 23.
+
+## 5.3.0 - 2023-11-24
+
+`Added`
+
+**forms-flow-web**
+
+* Added new UI for forms, submissions, tasks, processes, dashboards, navbar
+* Added RBAC support in form listing for reviewer
+* Added RBAC support in submission(application) listing for client and reviewer
+* Added form description to form
+* Added a description input field for the form.
+* Added create custom filter for task in task page
+* Added environment variable `DATE_FORMAT` to change the date format
+* Added environment variable `TIME_FORMAT` to change the time format
+* Added environment variable `CUSTOM_THEME_URL` to override the theme
+* Added environment variable `CUSTOM_RESOURCE_BUNDLE_URL` to customize resource bundle for internationalization 
+
+**forms-flow-api**
+
+* Added RBAC support in form listing for reviewer
+* Added RBAC support in submission(application) listing for client and reviewer
+* Added migration script to move existing task filters from forms-flow-bpm to forms-flow-api, checkout [here]( ./forms-flow-api/README.md#migration-script-for-existing-users)
+* Added environment variable `API_LOG_ROTATION_WHEN` for specifying the frequency of log file rotation
+* Added environment variable `API_LOG_ROTATION_INTERVAL` for setting the time interval for log file rotation
+* Added environment variable `API_LOG_BACKUP_COUNT` for determining the number of backup log files to keep
+
+**forms-flow-bpm**
+
+* Added task filter custom implementation
+* Added multi-modules
+
+**forms-flow-documents**
+
+* Added environment variable `API_LOG_ROTATION_WHEN` for specifying the frequency of log file rotation
+* Added environment variable `API_LOG_ROTATION_INTERVAL` for setting the time interval for log file rotation
+* Added environment variable `API_LOG_BACKUP_COUNT` for determining the number of backup log files to keep
+
+`Modified`
+
+**forms-flow-web**
+
+* Modified Tasks page with List view and Card view of tasklist
+* Modified Applications to Submissions in UI
+* Modified accessibility enhancement
+* Modified Name, Type, Path as advanced options while form create 
+  
+`Removed`
+
+**forms-flow-web**
+
+* Removed filter by form type from form listing table
+ 
+
+`Generic Changes`
+
+* Move task filters from forms-flow-bpm to forms-flow-web
+* Support Resubmit/ Edit Submission dynamically in the application flow with respect to isResubmit Key
+
+`Solution Component Upgrades`
+
+**forms-flow-api**
+
+* Flask upgraded to 2.3.3 and fixed security vulnerabilities
+  
+**forms-flow-web**
+
+* Fixed security vulnerabilities
+
+**forms-flow-bpm**
+
+* Camunda upgraded to 7.20.0, SpringBoot upgraded to 3.1.5 and fixed security vulnerabilities
+
+**forms-flow-documents**
+
+* Flask upgraded to 2.3.3 and fixed security vulnerabilities
+
+
+## 5.2.1 - 2023-09-01
+
+`Fixed`
+
+**forms-flow-web**
+
+* Fixed bpmn property panel css issue.
+
+**forms-flow-documents**
+
+* Fixed the problem of conflicting versions between Chrome and Chrome Driver when downloading forms.
+
+
+## 5.2.0 - 2023-06-30
+
+`Added`
+
+**forms-flow-web**
+
+* Added `Form bundling` premium feature, refer [here](https://aot-technologies.github.io/forms-flow-ai-doc/#formBundling) for more details.
+* Added RBAC(Role Based Access Control) support in form listing for designer and client, for more details checkout [here](https://aot-technologies.github.io/forms-flow-ai-doc/#rbac).
+* Added admin module for adding keycloak roles and user assignment.
+* Added formsflow-admin group for RBAC support.
+
+
+**forms-flow-web-root-config**
+
+* Added micro-frontend integration using single-spa, for more details checkout [here](./forms-flow-web-root-config/README.md#integrate-micro-front-end-modules-into-host-applications).
+* Added environment variables `MF_FORMSFLOW_WEB_URL`, `MF_FORMSFLOW_NAV_URL`, `MF_FORMSFLOW_SERVICE_URL`, `MF_FORMSFLOW_ADMIN_URL`, `MF_FORMSFLOW_THEME_URL` to get MicroFrontend Components Created.
+* Added environment variables `ENABLE_FORMS_MODULE`, `ENABLE_TASKS_MODULE`, `ENABLE_DASHBOARDS_MODULE`, `ENABLE_PROCESSES_MODULE`, `ENABLE_APPLICATIONS_MODULE` to disable a particular module in forms-flow-web.
+* Added environment variable `CUSTOM_THEME_URL` for providing theming configuration.
+
+
+**forms-flow-bpm**
+
+* Added migration to support new Role Based Access(RBAC) with existing camunda authorizations.
+
+**forms-flow-api**
+
+* Added RBAC(Role Based Access Control) support in form listing for designer and client, click [here](https://aot-technologies.github.io/forms-flow-ai-doc/#rbac) for more details.
+* Added migration script for existing users to get all forms listed, checkout [here]( ./forms-flow-api/README.md#migration-script-for-existing-users).
+* Added admin module for adding keycloak roles and user assignment.
+* Added formsflow-admin group for RBAC support.
+
+
+`Modified`
+
+**forms-flow-web**
+
+* Application history is modified to Application status and Request status.
+* Environment variable `USER_ACCESS_PERMISSIONS` is replaced with `ENABLE_APPLICATION_ACCESS_PERMISSION_CHECK` to enable Role level permission.
+
+**forms-flow-analytics**
+
+* Redash upgraded from version 10.1.4 to 10.1.5.
+
+`forms-flow-api`
+
+*Upgrade notes:*
+
+* Flask upgraded from version 2.1.3 to 2.3.2.
+
+
+`Fixed`
+
+**forms-flow-web**
+
+* Fixed resubmit issue in form adapter for custom submission.
+
+**forms-flow-bpm**
+
+* Task list variables not updated on re-submission by client issue fixed.
+
+`Generic Changes`
+
+* forms-flow-web is replaced by forms-flow-web-root-config as the deafult web application, for the setup refer [here](./forms-flow-web-root-config)
+* Added Micro-frontend feature to enable component level customisation  which includes
+     * forms-flow-admin (includes functionalities available for the user with admin privilages)
+     * forms-flow-navbar (trigger the routing, internationalization, and login/logout functionalities for all users)
+     * forms-flow-service (contains all the common functionalties used by micro front-ends like authentication service, storage APIs etc.)
+     * forms-flow-theme (contains the common style sheet shared by all micro-front-ends)<br>
+        Refer the [forms-flow-ai-micro-front-ends](https://github.com/AOT-Technologies/forms-flow-ai-micro-front-end) repository for further details.
+* Dashboard authorization is moved from designer role to admin user.
+
 
 ## 5.1.1 - 2023-05-18
 

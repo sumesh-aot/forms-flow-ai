@@ -5,7 +5,7 @@ from __future__ import annotations
 from http import HTTPStatus
 
 from flask import current_app
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy.query import Query
 from formsflow_api_utils.utils import (
     DEFAULT_PROCESS_KEY,
     DEFAULT_PROCESS_NAME,
@@ -51,6 +51,7 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
     deleted = db.Column(db.Boolean, nullable=True, default=False)
     task_variable = db.Column(JSON, nullable=True)
     version = db.Column(db.Integer, nullable=False, default=1)
+    description = db.Column(db.String, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("form_id", "version", "tenant", name="_form_version_uc"),
@@ -76,6 +77,7 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
                 mapper.is_anonymous = mapper_info.get("is_anonymous")
                 mapper.task_variable = mapper_info.get("task_variable")
                 mapper.version = mapper_info.get("version")
+                mapper.description = mapper_info.get("description")
                 mapper.save()
                 return mapper
         except Exception as err:  # pylint: disable=broad-except
@@ -102,6 +104,7 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
                 "is_anonymous",
                 "task_variable",
                 "process_tenant",
+                "description",
             ],
             mapper_info,
         )
@@ -126,7 +129,7 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
         else:
             query = (
                 cls.query.order_by(FormProcessMapper.id.desc())
-                .paginate(page=page_number, per_page=limit, error_out=False)
+                .paginate(page_number, limit, False)
                 .items
             )
         return query
@@ -150,10 +153,10 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
 
     @classmethod
     @user_context
-    def access_filter(cls, query: BaseQuery, **kwargs):
+    def access_filter(cls, query: Query, **kwargs):
         """Modifies the query to include active and tenant check."""
-        if not isinstance(query, BaseQuery):
-            raise TypeError("Query object must be of type BaseQuery")
+        if not isinstance(query, Query):
+            raise TypeError("Query object must be of type Query")
         user: UserContext = kwargs["user"]
         tenant_key: str = user.tenant_key
         active = query.filter(
@@ -164,29 +167,52 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
         return active
 
     @classmethod
+    def get_latest_form_mapper_ids(cls):
+        """Getting latest mapper id of a form, based on parentFormId."""
+        # Execute a query to retrieve the maximum ID of the form mapper and the parent form ID
+        # Since each form has one or more versions so we need latest from based on parentId
+        return (
+            db.session.query(
+                func.max(cls.id).label("id"),  # pylint: disable=not-callable
+                cls.parent_form_id,
+            )
+            # Group the results by the parent form ID
+            .group_by(cls.parent_form_id)
+            # Retrieve all the results as a list of tuples
+            .all()
+        )
+
+    @classmethod
     def find_all_forms(
         cls,
         page_number=None,
         limit=None,
         sort_by=None,
         sort_order=None,
+        form_ids=None,
+        is_active=None,
+        form_type=None,
         **filters,
     ):  # pylint: disable=too-many-arguments
         """Fetch all active and inactive forms which are not deleted."""
         # Get latest row for each form_id group
-        filtered_form_query = (
-            db.session.query(
-                func.max(cls.id).label("id")  # pylint: disable=not-callable
-            )
-            .group_by(cls.form_id)
-            .all()
-        )
-        filtered_form_ids = [data.id for data in filtered_form_query]
+        filtered_form_query = cls.get_latest_form_mapper_ids()
+        filtered_form_ids = [
+            data.id for data in filtered_form_query if data.parent_form_id in form_ids
+        ]
         query = cls.filter_conditions(**filters)
         query = query.filter(
             and_(FormProcessMapper.deleted.is_(False)),
             FormProcessMapper.id.in_(filtered_form_ids),
         )
+        # form type is list of type to filter the form
+        if form_type:
+            query = query.filter(FormProcessMapper.form_type.in_(form_type))
+
+        if is_active is not None:
+            value = FormProcessMapperStatus["ACTIVE" if is_active else "INACTIVE"].value
+            query = query.filter(FormProcessMapper.status == value)
+
         query = cls.tenant_authorization(query=query)
         sort_by, sort_order = validate_sort_order_and_order_by(sort_by, sort_order)
         if sort_by and sort_order:
@@ -198,6 +224,50 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
             cls.process_key,
             cls.form_id,
             cls.form_name,
+            cls.modified,
+            cls.status,
+            cls.is_anonymous,
+            cls.form_type,
+            cls.created,
+            cls.description,
+        )
+        limit = total_count if limit is None else limit
+        query = query.paginate(page=page_number, per_page=limit, error_out=False)
+        return query.items, total_count
+
+    @classmethod
+    def find_all_active_by_formid(
+        cls,
+        page_number=None,
+        limit=None,
+        sort_by=None,
+        sort_order=None,
+        form_ids=None,
+        **filters,
+    ):  # pylint: disable=too-many-arguments
+        """Fetch all active form process mappers by authorized forms."""
+        # Get latest row for each form_id group
+        filtered_form_query = cls.get_latest_form_mapper_ids()
+        filtered_form_ids = [
+            data.id for data in filtered_form_query if data.parent_form_id in form_ids
+        ]
+        query = cls.filter_conditions(**filters)
+        query = query.filter(
+            FormProcessMapper.id.in_(filtered_form_ids),
+        )
+        query = cls.access_filter(query=query)
+        sort_by, sort_order = validate_sort_order_and_order_by(sort_by, sort_order)
+        if sort_by and sort_order:
+            query = query.order_by(text(f"form_process_mapper.{sort_by} {sort_order}"))
+
+        total_count = query.count()
+        query = query.with_entities(
+            cls.id,
+            cls.process_key,
+            cls.form_id,
+            cls.form_name,
+            cls.modified,
+            cls.description,
         )
         limit = total_count if limit is None else limit
         query = query.paginate(page=page_number, per_page=limit, error_out=False)
@@ -289,13 +359,13 @@ class FormProcessMapper(AuditDateTimeMixin, AuditUserMixin, BaseModel, db.Model)
 
     @classmethod
     @user_context
-    def tenant_authorization(cls, query: BaseQuery, **kwargs):
+    def tenant_authorization(cls, query: Query, **kwargs):
         """Modifies the query to include tenant check if needed."""
-        tenant_auth_query: BaseQuery = query
+        tenant_auth_query: Query = query
         user: UserContext = kwargs["user"]
         tenant_key: str = user.tenant_key
-        if not isinstance(query, BaseQuery):
-            raise TypeError("Query object must be of type BaseQuery")
+        if not isinstance(query, Query):
+            raise TypeError("Query object must be of type Query")
         if tenant_key is not None:
             tenant_auth_query = tenant_auth_query.filter(cls.tenant == tenant_key)
         return tenant_auth_query

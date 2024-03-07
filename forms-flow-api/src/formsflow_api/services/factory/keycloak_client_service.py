@@ -1,11 +1,13 @@
 """Keycloak Admin implementation for client related operations."""
-from http import HTTPStatus
+
 from typing import Dict, List
 
 from flask import current_app
 from formsflow_api_utils.exceptions import BusinessException
+from formsflow_api_utils.utils.user_context import UserContext, user_context
 
-from formsflow_api.services import KeycloakAdminAPIService
+from formsflow_api.constants import BusinessErrorCode
+from formsflow_api.services import KeycloakAdminAPIService, UserService
 
 from .keycloak_admin import KeycloakAdmin
 
@@ -16,6 +18,7 @@ class KeycloakClientService(KeycloakAdmin):
     def __init__(self):
         """Initialize client."""
         self.client = KeycloakAdminAPIService()
+        self.user_service = UserService()
 
     def __populate_user_roles(self, user_list: List) -> List:
         """Collects roles for a user list and populates the role attribute."""
@@ -24,13 +27,6 @@ class KeycloakClientService(KeycloakAdmin):
                 self.client.get_user_roles(user.get("id")) if user.get("id") else []
             )
         return user_list
-
-    # Keycloak doesn't provide count API for this one
-    def __get_users_count(self, client_id: str, group_name: str):
-        """Returns user list count under a group."""
-        url_path = f"clients/{client_id}/roles/{group_name}/users"
-        user_list = self.client.get_request(url_path)
-        return len(user_list)
 
     def get_analytics_groups(self, page_no: int, limit: int):
         """Get analytics roles."""
@@ -46,7 +42,13 @@ class KeycloakClientService(KeycloakAdmin):
         return response
 
     def get_users(  # pylint: disable-msg=too-many-arguments
-        self, page_no: int, limit: int, role: bool, group_name: str, count: bool
+        self,
+        page_no: int,
+        limit: int,
+        role: bool,
+        group_name: str,
+        count: bool,
+        search: str,
     ):
         """Get users under this client with formsflow-reviewer role."""
         # group_name was hardcoded before as `formsflow-reviewer` make sure
@@ -56,10 +58,12 @@ class KeycloakClientService(KeycloakAdmin):
         )
         client_id = self.client.get_client_id()
         url = f"clients/{client_id}/roles/{group_name}/users"
-        if page_no and limit:
-            url += f"?first={(page_no-1)*limit}&max={limit}"
         users_list = self.client.get_request(url)
-        users_count = self.__get_users_count(client_id, group_name) if count else None
+        if search:
+            users_list = self.user_service.user_search(search, users_list)
+        users_count = len(users_list) if count else None
+        if page_no and limit:
+            users_list = self.user_service.paginate(users_list, page_no, limit)
         if role:
             users_list = self.__populate_user_roles(users_list)
         return (users_list, users_count)
@@ -127,11 +131,29 @@ class KeycloakClientService(KeycloakAdmin):
     ):
         """Search users in a realm."""
         if not page_no or not limit:
-            raise BusinessException(
-                "Missing pagination parameters", HTTPStatus.BAD_REQUEST
-            )
-        user_list = self.client.get_realm_users(search, page_no, limit)
-        users_count = self.client.get_realm_users_count(search) if count else None
+            raise BusinessException(BusinessErrorCode.MISSING_PAGINATION_PARAMETERS)
+
+        user_list, users_count = self.get_tenant_users(search, page_no, limit, count)
         if role:
             user_list = self.__populate_user_roles(user_list)
         return (user_list, users_count)
+
+    @user_context
+    def get_tenant_users(
+        self, search: str, page_no: int, limit: int, count: bool, **kwargs
+    ):  # pylint: disable=too-many-arguments
+        """Return list of users in the tenant."""
+        # Search and attribute search (q) in Keycloak doesn't work together.
+        # Count endpoint doesn't accommodate attribute search.
+        # These issues have been addressed on the webapi.
+        # TODO: Upon Keycloak issue resolution, direct fetching will be done. # pylint: disable=fixme
+        user: UserContext = kwargs["user"]
+        tenant_key = user.tenant_key
+        url = f"users?q=tenantKey:{tenant_key}"
+        current_app.logger.debug("Getting tenant users...")
+        result = self.client.get_request(url)
+        if search:
+            result = self.user_service.user_search(search, result)
+        count = len(result) if count else None
+        result = self.user_service.paginate(result, page_no, limit)
+        return result, count
