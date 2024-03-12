@@ -1,5 +1,5 @@
 """This exposes submission service."""
-
+import asyncio
 import json
 
 from typing import Dict
@@ -142,7 +142,9 @@ class DraftService:
             payload = ApplicationService.get_start_task_payload(
                 application, mapper, data["form_url"], data["web_form_url"], variables
             )
-            ApplicationService.start_task(mapper, payload, token, application)
+            asyncio.run(
+                ApplicationService.start_task(mapper, payload, token, application.id)
+            )
             application.commit()
         except Exception as e:
             current_app.logger.error("Error occurred during application creation %s", e)

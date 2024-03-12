@@ -1,4 +1,5 @@
 """This exposes application service."""
+import asyncio
 import json
 from datetime import datetime
 from functools import lru_cache
@@ -63,7 +64,7 @@ class ApplicationService:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def start_task(
-            mapper: FormProcessMapper, payload: Dict, token: str, application: Application
+            mapper: FormProcessMapper, payload: Dict, token: str, application_id: int
     ) -> None:
         """Trigger bpmn workflow to create a task."""
         try:
@@ -81,7 +82,10 @@ class ApplicationService:  # pylint: disable=too-many-public-methods
                     token=token,
                     tenant_key=mapper.tenant,
                 )
+            # This is run as async, so the application model instance would be stale here, lookup and update
+            application = Application.find_by_id(application_id)
             application.update({"process_instance_id": camunda_start_task.get("id")})
+            application.commit()
         except TypeError as camunda_error:
             response = {
                 "message": "Camunda workflow not able to create a task",
@@ -130,7 +134,11 @@ class ApplicationService:  # pylint: disable=too-many-public-methods
                 payload = ApplicationService.get_start_task_payload(
                     application, mapper, form_url, web_form_url, variables
                 )
-                ApplicationService.start_task(mapper, payload, token, application)
+                # Creating the process instance asynchronously.
+                asyncio.run(
+                    ApplicationService.start_task(mapper, payload, token, application.id)
+                )
+
             application.commit()  # Commit the record
         except Exception as e:
             current_app.logger.error("Error occurred during application creation %s", e)
